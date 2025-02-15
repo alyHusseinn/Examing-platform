@@ -1,56 +1,56 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../store';
-import { logout } from '../store/slices/authSlice';
-import { GraduationCap, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { BookOpen, LogOut, Coins } from 'lucide-react';
+import { useAuthStore } from '../store/auth';
 
-const Navbar = () => {
-  const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+export default function Navbar() {
+  const { user, setUser } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/login');
+  };
+
+  if (!user) return null;
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <GraduationCap className="h-8 w-8 text-indigo-600" />
-            <span className="text-xl font-bold text-gray-800">AdaptLearn</span>
+            <BookOpen className="h-6 w-6 text-indigo-600" />
+            <span className="font-semibold text-gray-900">Adaptive Learning</span>
           </Link>
           
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <span className="text-gray-600">Welcome, {user?.name}</span>
-                {user?.role === 'admin' && (
-                  <Link
-                    to="/admin"
-                    className="text-indigo-600 hover:text-indigo-800"
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
-                <button
-                  onClick={() => dispatch(logout())}
-                  className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"
-                >
-                  <LogOut className="h-5 w-5" />
-                  <span>Logout</span>
-                </button>
-              </>
-            ) : (
+            {user.role === 'admin' && (
               <Link
-                to="/login"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                to="/admin"
+                className="text-gray-700 hover:text-indigo-600 transition-colors"
               >
-                Login
+                Admin Dashboard
               </Link>
             )}
+            {user.role === 'student' && (
+              <div className="flex items-center space-x-2 bg-indigo-100 rounded-full px-4 py-1.5 hover:bg-indigo-200 transition-colors">
+                <span className="font-medium text-indigo-700">
+                  {user.points ? `${user.points} Points!` : '0 Points'}
+                </span>
+                <Coins className="h-5 w-5 text-indigo-600 animate-bounce" />
+              </div>
+            )}
+            <span className="text-gray-600">{user.name}</span>
+            <button
+              onClick={handleLogout}
+              className="p-2 text-gray-600 hover:text-indigo-600 transition-colors"
+            >
+              <LogOut className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </div>
     </nav>
   );
-};
-
-export default Navbar;
+}
