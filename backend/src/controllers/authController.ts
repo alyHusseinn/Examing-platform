@@ -13,6 +13,7 @@ const generateToken = (id: mongoose.Types.ObjectId) => {
 export const register = [
   check('name').notEmpty().withMessage('Name is required'),
   check('email').isEmail().withMessage('Invalid email'),
+  check('role').isIn(['admin', 'student']).withMessage('Invalid role'),
   check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
   async (req: Request, res: Response) => {
     try {
@@ -21,7 +22,7 @@ export const register = [
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { name, email, password } = req.body;
+      const { name, email, role, password } = req.body;
 
       const userExists = await User.findOne({ email });
       if (userExists) {
@@ -31,6 +32,7 @@ export const register = [
       const user = await User.create({
         name,
         email,
+        role,
         password
       });
 
@@ -39,6 +41,7 @@ export const register = [
         name: user.name,
         email: user.email,
         role: user.role,
+        points: user.points,
         token: generateToken(user._id)
       });
     } catch (error) {
@@ -74,6 +77,7 @@ export const login = [
         name: user.name,
         email: user.email,
         role: user.role,
+        points: user.points,
         token: generateToken(user._id)
       });
     } catch (error) {

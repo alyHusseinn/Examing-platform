@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { getExamById, submitExam } from '../controllers/examController.js';
+import { routes } from '../controllers/examController.js';
+import { checkStudent } from '../middleware/checkRole.js';
 
 const router = Router();
 
-router.get('/:id', getExamById);
-router.post('/:id', submitExam);
+router.get('/:id', routes.getExamById);
+router.post('/:id', checkStudent, routes.submitExam);
 
 
 export default router;

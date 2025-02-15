@@ -5,12 +5,14 @@ import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import morgan from 'morgan';
 
 import authRoutes from './routes/auth.js';
-import examRoutes from './routes/exam';
+import examRoutes from './routes/exam.js';
 import subjectRoutes from './routes/subject.js';
 import chatbotRoutes from './routes/chatbot.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { protect } from './middleware/auth.js';
 
 dotenv.config();
 
@@ -33,26 +35,13 @@ const limiter = rateLimit({
 app.use(cors());
 app.use(express.json());
 app.use(limiter);
+app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/exams', examRoutes);
-app.use('/api/subjects', subjectRoutes);
-app.use('/api/chatbot', chatbotRoutes);
-
-// WebSocket connection for chatbot
-io.on('connection', (socket) => {
-  console.log('Client connected');
-
-  socket.on('message', async (data) => {
-    // Handle chatbot messages
-    // Implementation will be added later
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
+app.use('/api/exams', protect, examRoutes);
+app.use('/api/subjects', protect, subjectRoutes);
+app.use('/api/chatbot', protect, chatbotRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -60,7 +49,7 @@ app.use(errorHandler);
 // Database connection
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI as string);
+    const conn = await mongoose.connect(process.env.MONGODB_URI as string);       
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
@@ -75,4 +64,5 @@ connectDB().then(() => {
   httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+
 });

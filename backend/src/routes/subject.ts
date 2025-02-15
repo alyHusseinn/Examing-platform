@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import { createSubject, getAllSubjects, getSubjectById } from '../controllers/subjectController.js';
+import { routes } from '../controllers/subjectController.js';
 import { checkAdmin } from '../middleware/checkRole.js';
-// import { protect } from '../middleware/auth.js';
 
 const router = Router();
 
-router.post('/', checkAdmin, createSubject);
-router.get('/', getAllSubjects);
-router.get('/:id', getSubjectById);
+router.post('/', checkAdmin, routes.createSubject);
+router.get('/', routes.getAllSubjects);
+router.get('/:id', routes.getSubjectById);
 
 export default router;

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { validationResult, check } from 'express-validator';
+import { User } from '../models/User.js';
 import { Exam } from '../models/Exam.js';
 import { UserSubjectLevel } from '../models/UserSubjectLevel.js';
 import { ExamAttempt } from '../models/ExamAttempt.js';
@@ -51,7 +52,7 @@ const updateUserLevel = async (userSubjectLevel: any, userId: string, subject: m
         await userSubjectLevel.save();
     } else {
         await UserSubjectLevel.create({
-            userId,
+            user: userId,
             subject,
             level: 1
         });
@@ -60,7 +61,7 @@ const updateUserLevel = async (userSubjectLevel: any, userId: string, subject: m
 
 const updateExamAttempt = async (userId: string, examId: mongoose.Types.ObjectId, score: number, answers: Record<string, string>) => {
     const examAttempt = await ExamAttempt.findOne({
-        userId,
+        user: userId,
         exam: examId
     });
 
@@ -71,7 +72,7 @@ const updateExamAttempt = async (userId: string, examId: mongoose.Types.ObjectId
         await examAttempt.save();
     } else {
         await ExamAttempt.create({
-            userId,
+            user: userId,
             exam: examId,
             answers: Object.values(answers).map((answer: string) => parseInt(answer)),
             score
@@ -82,23 +83,36 @@ const updateExamAttempt = async (userId: string, examId: mongoose.Types.ObjectId
 const getExamById = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const exam = await Exam.findById(id);
+        const { difficulty } = req.query;
+        const exam = await Exam.findOne({ subject: id, difficulty: difficulty });
         
         if (!exam) {
             return res.status(404).json({ message: 'Exam not found' });
         }
 
+        if(req.user.role == 'admin') {
+            // retuns the exam and the students who passed the exam
+            const passedAttempts = await ExamAttempt.find({ exam: id, completed: true }).populate('userId');
+
+            res.json({ exam, students: passedAttempts.map((attempt) => attempt.user) });
+        }
+
         const userSubjectLevel = await UserSubjectLevel.findOne({
-            userId: req.user.id,
+            user: req.user.id,
             subject: exam.subject
         });
 
-        if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
-            return res.status(403).json({ message: 'You do not have access to this exam' });
-        }
-
+        // if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
+        //     return res.status(403).json({ message: 'You do not have access to this exam' });
+        // }
+        // delete the exam.questions.correctAnswer
+        exam.questions.forEach((question: any) => {
+            delete question.correctAnswer;
+        });
+        
         res.json(exam);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ message: 'Error fetching exam' });
     }
 };
@@ -113,34 +127,41 @@ const submitExam = [
             }
 
             const { id } = req.params;
+            const { difficulty } = req.query;
             const { answers } = req.body;
-            const exam = await Exam.findById(id);
+            console.log(answers);
+            const exam = await Exam.findOne({ subject: id, difficulty: difficulty });
 
             if (!exam) {
                 return res.status(404).json({ message: 'Exam not found' });
             }
 
             const userSubjectLevel = await UserSubjectLevel.findOne({
-                userId: req.user.id,
+                user: req.user.id,
                 subject: exam.subject
             });
 
-            if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
-                return res.status(403).json({ message: 'You do not have access to this exam' });
-            }
+            // if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
+            //     return res.status(403).json({ message: 'You do not have access to this exam' });
+            // }
 
             const score = calculateScore(answers, exam.questions);
 
             if (score >= PASSING_SCORE) {
                 await updateUserLevel(userSubjectLevel, req.user.id, exam.subject);
                 await updateExamAttempt(req.user.id, exam._id, score, answers);
+                await User.findByIdAndUpdate(req.user.id, { $inc: { points: 100 } });
             }
 
             res.json({ score });
         } catch (error) {
+            console.log(error);
             res.status(500).json({ message: 'Error submitting exam' });
         }
     }
 ];
 
-export { getExamById, submitExam };
+export const routes = {
+    getExamById,
+    submitExam
+}
