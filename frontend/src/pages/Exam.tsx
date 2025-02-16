@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { exams } from '../lib/api';
-import type { Exam as ExamType, ExamScore } from '../types';
+import type { Exam as ExamType, ExamScore, Question, ExamAttempt } from '../types';
+import { useAuthStore } from '../store/auth';
+
 
 export default function Exam() {
   const { id } = useParams<{ id: string }>();
@@ -11,12 +13,19 @@ export default function Exam() {
   const navigate = useNavigate();
   const difficulty = searchParams.get('difficulty') || 'easy';
   
+  const isAdmin = useAuthStore((state) => state.user?.role === 'admin');
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
   const { data: exam, isLoading: examLoading } = useQuery<ExamType>({
     queryKey: ['exam', id, difficulty],
     queryFn: () => exams.getById(id!, difficulty),
+  });
+
+  const { data: adminData } = useQuery({
+    queryKey: ['examAdmin', id, difficulty],
+    queryFn: () => exams.getAdminData(id!, difficulty),
+    enabled: isAdmin,
   });
 
   const submitMutation = useMutation({
@@ -113,6 +122,98 @@ export default function Exam() {
           >
             Return to Subject
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  console.log(adminData);
+
+  if (isAdmin && exam) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-8">
+        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6">
+          <h1 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+            Exam Administration View
+          </h1>
+          
+          <div className="space-y-6">
+            {adminData?.exam.questions.map((question: Question, index: number) => (
+              <div key={index} className="border rounded-lg p-4 bg-white">
+                <p className="text-lg font-medium mb-4">
+                  <span className="text-indigo-600 font-bold mr-2">Q{index + 1}.</span>
+                  {question.text}
+                </p>
+                <div className="space-y-2">
+                  {question.options.map((option: string, optionIndex: number) => (
+                    <div
+                      key={optionIndex}
+                      className={`p-3 rounded-lg ${
+                        question.correctAnswer == optionIndex.toString()
+                          ? 'bg-green-50 border border-green-200'
+                          : ''
+                      }`}
+                    >
+                      <span className="text-gray-700">
+                        {option}
+                        {question.correctAnswer == optionIndex.toString() && (
+                          <span className="ml-2 text-green-600 font-medium">(Correct Answer)</span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {adminData?.attempts && (
+            <div className="mt-8">
+              <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Student Performance Overview
+              </h2>
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="p-4 bg-indigo-50 border-b font-medium text-indigo-800 grid grid-cols-4 gap-4">
+                  <span>Student</span>
+                  <span>Email</span>
+                  <span>Score</span>
+                  <span>Status</span>
+                </div>
+                {adminData.attempts.map((attempt: ExamAttempt, index: number) => (
+                  <div 
+                    key={index} 
+                    className="p-4 border-b last:border-b-0 grid grid-cols-4 gap-4 hover:bg-indigo-50 transition-colors duration-200"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 font-medium">
+                          {attempt.user.name.charAt(0)}
+                        </span>
+                      </div>
+                      <p className="text-gray-800 font-medium">{attempt.user.name}</p>
+                    </div>
+                    <p className="text-gray-600 self-center">{attempt.user.email}</p>
+                    <div className="self-center">
+                      <span className="px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-700">
+                        {attempt.score}/10
+                      </span>
+                    </div>
+                    <div className="self-center">
+                      {attempt.score >= 7 ? (
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                          Passed
+                        </span>
+                      ) : (
+                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                          Failed
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

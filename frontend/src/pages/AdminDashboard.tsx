@@ -23,10 +23,10 @@ const SubjectCard = ({ subject }: { subject: Subject }) => (
 
 const CreateSubjectForm = ({ 
   onSubmit, 
-  onCancel 
+  isLoading
 }: { 
   onSubmit: (data: { name: string; description: string }) => void;
-  onCancel: () => void;
+  isLoading: boolean;
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -51,6 +51,7 @@ const CreateSubjectForm = ({
             onChange={(e) => setName(e.target.value)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             required
+            disabled={isLoading}
           />
         </div>
 
@@ -65,13 +66,12 @@ const CreateSubjectForm = ({
             rows={3}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             required
+            disabled={isLoading}
           />
         </div>
-
-        <div className="flex justify-end space-x-3">
-          <Button variant="secondary" onClick={onCancel}>Cancel</Button>
-          <Button type="submit" variant="primary">Create</Button>
-        </div>
+        <Button type="submit" variant="primary" disabled={isLoading}>
+          {isLoading ? <LoadingSpinner className="h-5 w-5 border-white" /> : 'Create'}
+        </Button>
       </form>
     </div>
   );
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
       {isCreating && (
         <CreateSubjectForm
           onSubmit={createMutation.mutate}
-          onCancel={() => setIsCreating(false)}
+          isLoading={createMutation.isPending}
         />
       )}
 

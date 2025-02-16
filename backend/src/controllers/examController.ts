@@ -75,7 +75,8 @@ const updateExamAttempt = async (userId: string, examId: mongoose.Types.ObjectId
             user: userId,
             exam: examId,
             answers: Object.values(answers).map((answer: string) => parseInt(answer)),
-            score
+            score,
+            completed: score >= PASSING_SCORE
         });
     }
 };
@@ -85,16 +86,14 @@ const getExamById = async (req: AuthRequest, res: Response) => {
         const { id } = req.params;
         const { difficulty } = req.query;
         const exam = await Exam.findOne({ subject: id, difficulty: difficulty });
-        
+
         if (!exam) {
             return res.status(404).json({ message: 'Exam not found' });
         }
 
-        if(req.user.role == 'admin') {
-            // retuns the exam and the students who passed the exam
-            const passedAttempts = await ExamAttempt.find({ exam: id, completed: true }).populate('userId');
-
-            res.json({ exam, students: passedAttempts.map((attempt) => attempt.user) });
+        if (req.user.role == 'admin') {
+            const attempts = await ExamAttempt.find({ exam: exam._id }).populate('user').select('user score');
+            return res.json({ exam, attempts });
         }
 
         const userSubjectLevel = await UserSubjectLevel.findOne({
@@ -109,7 +108,7 @@ const getExamById = async (req: AuthRequest, res: Response) => {
         exam.questions.forEach((question: any) => {
             delete question.correctAnswer;
         });
-        
+
         res.json(exam);
     } catch (error) {
         console.log(error);
@@ -129,7 +128,6 @@ const submitExam = [
             const { id } = req.params;
             const { difficulty } = req.query;
             const { answers } = req.body;
-            console.log(answers);
             const exam = await Exam.findOne({ subject: id, difficulty: difficulty });
 
             if (!exam) {
@@ -146,11 +144,11 @@ const submitExam = [
             // }
 
             const score = calculateScore(answers, exam.questions);
+            await updateExamAttempt(req.user.id, exam._id, score, answers);
 
             if (score >= PASSING_SCORE) {
                 await updateUserLevel(userSubjectLevel, req.user.id, exam.subject);
-                await updateExamAttempt(req.user.id, exam._id, score, answers);
-                await User.findByIdAndUpdate(req.user.id, { $inc: { points: 100 } });
+                await User.findByIdAndUpdate(req.user.id, { $inc: { points: score * 10 } });
             }
 
             res.json({ score });

@@ -19,6 +19,7 @@ export interface Subject {
 export interface Question {
   text: string;
   options: string[];
+  correctAnswer?: string;
 }
 
 export interface Exam {
@@ -27,6 +28,14 @@ export interface Exam {
   difficulty: 'easy' | 'intermediate' | 'hard';
   questions: Question[];
   resources: string[];
+}
+
+export interface ExamAttempt {
+  _id: string;
+  user: User;
+  score: number;
+  completed?: boolean;
+  answers?: Record<string, string>;
 }
 
 export interface ExamSubmission {

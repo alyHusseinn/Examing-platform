@@ -30,10 +30,15 @@ export const exams = {
   getById: async (id: string, difficulty?: string) => (await api.get(`/exams/${id}?difficulty=${difficulty}`)).data,
   submit: async (id: string, difficulty: string, data: { answers: Record<string, string> }) =>
     (await api.post(`/exams/${id}?difficulty=${difficulty}`, data)).data,
+  getAdminData: async (id: string, difficulty?: string) => (await api.get(`/exams/${id}?difficulty=${difficulty}`)).data,
 };
 
 export const chatbot = {
   ask: async (subject: string, question: string) => (await api.post('/chatbot', { subject, question })).data,
 };
+
+// export const examAttempts = {
+//   getById: async (id: string) => (await api.get(`/examAttempts/${id}`)).data,
+// };
 
 export default api;

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BookOpen, Trophy, ArrowRight } from 'lucide-react';
 import { subjects, chatbot } from '../lib/api';
 import type { Subject } from '../types';
-
+import { useAuthStore } from '../store/auth';
 const difficultyColors = {
   easy: 'bg-green-50 text-green-700 ring-green-600/20',
   intermediate: 'bg-yellow-50 text-yellow-700 ring-yellow-600/20',
@@ -23,6 +23,8 @@ export default function SubjectDetail() {
   const [question, setQuestion] = React.useState('');
   const [chatHistory, setChatHistory] = React.useState<Array<{ question: string; answer: string }>>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const isAdmin = useAuthStore((state) => state.user?.role === 'admin');
   
   const { data: subject, isLoading: isSubjectLoading, error } = useQuery<Subject>({
     queryKey: ['subject', id],
@@ -93,9 +95,9 @@ export default function SubjectDetail() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {difficulties.map((difficulty, index) => {
-              const isUnlocked = index <= currentLevel;
+              const isUnlocked = isAdmin || index <= currentLevel;
               const isCompleted = index < currentLevel;
-              const isNext = index === currentLevel;
+              const isNext = !isAdmin && index === currentLevel;
 
               return (
                 <div
@@ -116,9 +118,14 @@ export default function SubjectDetail() {
                       >
                         {difficultyLabels[difficulty]}
                       </span>
-                      {isCompleted && (
+                      {isCompleted && !isAdmin && (
                         <span className="ml-2 text-sm text-green-600 font-medium">
                           ✨ Mastered!
+                        </span>
+                      )}
+                      {isAdmin && (
+                        <span className="ml-2 text-sm text-indigo-600 font-medium">
+                          View Results
                         </span>
                       )}
                     </div>
@@ -126,12 +133,12 @@ export default function SubjectDetail() {
                       <ArrowRight className="h-5 w-5 text-indigo-600 animate-pulse" />
                     )}
                   </div>
-                  {!isUnlocked && (
+                  {!isUnlocked && !isAdmin && (
                     <div className="absolute inset-0 bg-gray-50/90 rounded-lg flex items-center justify-center">
                       <span className="text-gray-500">🔒 Coming Soon</span>
                     </div>
                   )}
-                  {isNext && (
+                  {isNext && !isAdmin && (
                     <div className="mt-2 text-sm text-indigo-600">
                       Ready for your next challenge! 💪
                     </div>
