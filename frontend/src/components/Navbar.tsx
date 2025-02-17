@@ -1,55 +1,191 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, LogOut, Coins } from 'lucide-react';
 import { useAuthStore } from '../store/auth';
+import { Menu, X, BookOpen, LogOut, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
-  const { user, setUser } = useAuthStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuthStore();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/login');
+    logout();
+    navigate('/');
   };
 
-  if (!user) return null;
-
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <BookOpen className="h-6 w-6 text-indigo-600" />
-            <span className="font-semibold text-gray-900">Adaptive Learning</span>
-          </Link>
-          
-          <div className="flex items-center space-x-4">
-            {user.role === 'admin' && (
-              <Link
-                to="/admin"
-                className="text-gray-700 hover:text-indigo-600 transition-colors"
-              >
-                Admin Dashboard
-              </Link>
-            )}
-            {user.role === 'student' && (
-              <div className="flex items-center space-x-2 bg-indigo-100 rounded-full px-4 py-1.5 hover:bg-indigo-200 transition-colors">
-                <span className="font-medium text-indigo-700">
-                  {user.points ? `${user.points} Points!` : '0 Points'}
-                </span>
-                <Coins className="h-5 w-5 text-indigo-600 animate-bounce" />
-              </div>
-            )}
-            <span className="text-gray-600">{user.name}</span>
+    <nav className="bg-white shadow-md">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between h-16">
+          {/* Mobile menu button */}
+          <div className="flex items-center md:hidden">
             <button
-              onClick={handleLogout}
-              className="p-2 text-gray-600 hover:text-indigo-600 transition-colors"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-600 hover:text-gray-900"
             >
-              <LogOut className="h-5 w-5" />
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
+
+          {/* Left navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Link
+              to="/"
+              className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Home
+            </Link>
+            {isAuthenticated && (
+              <>
+                <Link
+                  to="/subjects"
+                  className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Subjects & Exams!
+                </Link>
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Center logo and brand */}
+          <div className="flex-1 flex items-center justify-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <BookOpen className="h-8 w-8 text-indigo-600" />
+              <span className="text-xl font-bold text-gray-900">Adaptive Learning</span>
+            </Link>
+          </div>
+
+          {/* Right navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/login"
+                  className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+                >
+                  Sign Up
+                </Link>
+              </>
+            ) : (
+
+              <div className="relative group">
+                <button className="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+                  <User className="h-5 w-5" />
+                  <span>{user?.name}</span>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={user?.points}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 20 }}
+                      className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
+                    >
+                      <motion.span
+                        initial={{ scale: 0.5 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                      >
+                        ✨ {user?.points || 0} pts
+                      </motion.span>
+                    </motion.div>
+                  </AnimatePresence>
+                </button>
+                <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-xl hidden group-hover:block">
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                  >
+                    My Profile
+                  </Link>
+                  {user?.role === 'admin' && (
+                    <Link
+                      to="/admin"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden py-2">
+            <Link
+              to="/"
+              className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+            >
+              Home
+            </Link>
+            {isAuthenticated && (
+              <Link
+                to="/subjects"
+                className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+              >
+                Dashboard
+              </Link>
+            )}
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  to="/login"
+                  className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                >
+                  Sign Up
+                </Link>
+              </>
+            ) : (
+              <>
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center w-full px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> 
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </nav>
   );

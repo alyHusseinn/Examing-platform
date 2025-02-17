@@ -9,7 +9,8 @@ import SubjectList from './pages/SubjectList';
 import SubjectDetail from './pages/SubjectDetail';
 import Exam from './pages/Exam';
 import AdminDashboard from './pages/AdminDashboard';
-
+import Home from './pages/Home';
+import Profile from './pages/Profile';
 const queryClient = new QueryClient();
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -30,12 +31,14 @@ function App() {
           <Navbar />
           <main className="container mx-auto px-4 py-8">
             <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/subjects" element={<PrivateRoute element={<SubjectList />} />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/" element={<PrivateRoute element={<SubjectList />} />} />
               <Route path="/subjects/:id" element={<PrivateRoute element={<SubjectDetail />} />} />
               <Route path="/exams/:id" element={<PrivateRoute element={<Exam />} />} />
               <Route path="/admin" element={<AdminRoute element={<AdminDashboard />} />} />
+              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
             </Routes>
           </main>
         </div>
