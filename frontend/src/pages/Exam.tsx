@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { exams } from '../lib/api';
-import type { Exam as ExamType, ExamScore, Question, ExamAttempt } from '../types';
+import type { Exam as ExamType, Question, ExamAttempt } from '../types';
 import { useAuthStore } from '../store/auth';
 
 
@@ -15,7 +15,6 @@ export default function Exam() {
   
   const isAdmin = useAuthStore((state) => state.user?.role === 'admin');
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
 
   const { data: exam, isLoading: examLoading } = useQuery<ExamType>({
     queryKey: ['exam', id, difficulty],
@@ -31,8 +30,15 @@ export default function Exam() {
   const submitMutation = useMutation({
     mutationFn: (data: { answers: Record<string, string> }) =>
       exams.submit(id!, difficulty, data),
-    onSuccess: () => {
-      setSubmitted(true);
+    onSuccess: (data) => {
+      // Navigate to results page with score and resources
+      navigate('/exam-results', {
+        state: {
+          score: data.score,
+          youtubeResources: exam?.youtubeResources,
+          webResources: exam?.webResources
+        }
+      });
     },
   });
 
@@ -62,8 +68,8 @@ export default function Exam() {
     hard: 'text-red-600',
   }[difficulty];
 
-  if (submitted) {
-    const score = (submitMutation.data as ExamScore)?.score || 0;
+  if (submitMutation.isSuccess) {
+    const score = submitMutation.data.score;
     const passed = score >= 7;
 
     return (
@@ -89,7 +95,7 @@ export default function Exam() {
                   Here are some resources to help you improve:
                 </p>
                 <div className="space-y-3">
-                  {exam.resources?.map((resource, index) => (
+                  {exam.youtubeResources?.map((resource, index) => (
                     <a
                       key={index}
                       href={resource}

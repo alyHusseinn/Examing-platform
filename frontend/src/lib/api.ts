@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/auth';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
@@ -12,11 +13,35 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const auth = {
   register: async (data: { name: string; email: string; password: string; role: string }) =>
     (await api.post('/auth/register', data)).data,
   login: async (data: { email: string; password: string }) =>
     (await api.post('/auth/login', data)).data,
+  getCurrentUser: async () => (await api.get('/auth/me')).data,
+};
+
+export const initializeAuth = async () => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      const user = await auth.getCurrentUser();
+      useAuthStore.getState().setUser(user);
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      localStorage.removeItem('token');
+    }
+  }
 };
 
 export const subjects = {

@@ -26,6 +26,27 @@ const SUBJECT_THEMES = [
     text: 'text-emerald-700',
     iconBg: 'bg-emerald-100',
   },
+  { 
+    bg: 'bg-purple-50/50', 
+    border: 'border-purple-200',
+    hover: 'hover:border-purple-400 hover:bg-purple-50',
+    text: 'text-purple-700',
+    iconBg: 'bg-purple-100',
+  },
+  { 
+    bg: 'bg-orange-50/50', 
+    border: 'border-orange-200',
+    hover: 'hover:border-orange-400 hover:bg-orange-50',
+    text: 'text-orange-700',
+    iconBg: 'bg-orange-100',
+  },
+  { 
+    bg: 'bg-red-50/50', 
+    border: 'border-red-200',
+    hover: 'hover:border-red-400 hover:bg-red-50',
+    text: 'text-red-700',
+    iconBg: 'bg-red-100',
+  },
 ] as const;
 
 export default function SubjectList() {

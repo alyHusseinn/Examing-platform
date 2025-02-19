@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/auth';
@@ -11,6 +11,8 @@ import Exam from './pages/Exam';
 import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import ExamResults from './pages/ExamResults';
+import { initializeAuth } from './lib/api';
 const queryClient = new QueryClient();
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -24,6 +26,10 @@ const AdminRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
 };
 
 function App() {
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -39,6 +45,7 @@ function App() {
               <Route path="/exams/:id" element={<PrivateRoute element={<Exam />} />} />
               <Route path="/admin" element={<AdminRoute element={<AdminDashboard />} />} />
               <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              <Route path="/exam-results" element={<PrivateRoute element={<ExamResults />} />} />
             </Routes>
           </main>
         </div>
