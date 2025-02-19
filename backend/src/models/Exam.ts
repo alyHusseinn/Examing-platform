@@ -32,7 +32,8 @@ const examSchema = new mongoose.Schema({
     required: true
   },
   questions: [questionSchema],
-  resources: [String],
+  youtubeResources: [String],
+  webResources: [String],
 }, {
   timestamps: true
 });

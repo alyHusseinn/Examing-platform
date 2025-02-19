@@ -3,6 +3,7 @@ import { validationResult, check } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import mongoose from 'mongoose';
+import { AuthRequest } from '../middleware/auth.js';
 
 const generateToken = (id: mongoose.Types.ObjectId) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
@@ -85,3 +86,21 @@ export const login = [
     }
   }
 ]
+
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      points: user.points,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};

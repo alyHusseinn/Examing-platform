@@ -27,7 +27,8 @@ const createExamForDifficulty = async (subjectId: mongoose.Types.ObjectId, diffi
             correctAnswer: question.correctAnswer,
             difficulty
         })),
-        resources: questions.resources,
+        youtubeResources: questions.youtubeResources,
+        webResources: questions.webResources,
     });
 };
 
@@ -63,7 +64,7 @@ export class SubjectController {
                 createExamForDifficulty(subject._id, 'hard', hardQuestions)
             ]);
 
-            return res.status(201).json({ message: 'Subject created successfully', subject, easyQuestions, mediumQuestions, hardQuestions });
+            return res.status(201).json({ message: 'Subject created successfully', id: subject._id });
         } catch (error: any) {
             const status = error.status || 500;
             const message = error.status ? error.errors : 'Error creating subject';
