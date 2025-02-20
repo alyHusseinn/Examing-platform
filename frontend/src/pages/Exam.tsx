@@ -138,7 +138,7 @@ export default function Exam() {
   if (isAdmin && exam) {
     return (
       <div className="max-w-3xl mx-auto space-y-8">
-        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6">
+        <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6 border border-indigo-500">
           <h1 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
             Exam Administration View
           </h1>
@@ -189,6 +189,7 @@ export default function Exam() {
                   <div 
                     key={index} 
                     className="p-4 border-b last:border-b-0 grid grid-cols-4 gap-4 hover:bg-indigo-50 transition-colors duration-200"
+                    onClick={() => navigate(`/profile/${attempt.user._id}`)}
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
@@ -220,6 +221,35 @@ export default function Exam() {
               </div>
             </div>
           )}
+
+          {/**All the resourcesources */}
+          <div className="mt-8">
+            <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+              Resources
+            </h2>
+            <div className="space-y-4">
+              <h2 className="text-lg font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Youtube Resources
+              </h2>
+              {adminData?.exam.youtubeResources?.map((resource: string) => (
+
+                <a href={resource} target="_blank" rel="noopener noreferrer" className="block p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+                  {resource}
+                </a>
+              ))}
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
+                Web Resources
+              </h2>
+              {adminData?.exam.webResources?.map((resource: string) => (
+                <a href={resource} target="_blank" rel="noopener noreferrer" className="block p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+                  {resource}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -227,7 +257,7 @@ export default function Exam() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6">
+      <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6 border border-indigo-500">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
             <span className={difficultyColor}>{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}</span> Exam
@@ -261,7 +291,7 @@ export default function Exam() {
                       name={`question-${index}`}
                       value={option}
                       checked={answers[index] === optionIndex.toString()}
-                      onChange={(e) =>
+                      onChange={() =>
                         setAnswers((prev) => ({
                           ...prev,
                           [index]: optionIndex.toString(),

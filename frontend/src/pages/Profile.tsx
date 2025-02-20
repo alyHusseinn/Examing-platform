@@ -1,18 +1,33 @@
 import { useAuthStore } from '../store/auth';
 import { motion } from 'framer-motion';
-import { Trophy, Star, BookOpen, Clock, Award, ChevronRight } from 'lucide-react';
+import { Trophy, BookOpen, Clock, Award, ChevronRight, Target } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { subjects } from '../lib/api';
-import { Link } from 'react-router-dom';
+import { subjects, userStats } from '../lib/api';
+import { Link, useParams } from 'react-router-dom';
 import { Subject } from '../types';
-
+  
 export default function Profile() {
   const { user } = useAuthStore();
+  const { id } = useParams<{ id: string }>();
   
   const { data: subjectList } = useQuery({
     queryKey: ['subjects'],
     queryFn: subjects.getAll,
   });
+
+  const { data: stats } = useQuery({
+    queryKey: ['userStats'],
+    queryFn: user?.role === 'admin' ? () => userStats.getStatsById(id!) : userStats.getStats,
+  });
+
+  const calculateRank = (points: number) => {
+    if (points >= 1000) return 'Master';
+    if (points >= 500) return 'Advanced';
+    if (points >= 200) return 'Intermediate';
+    return 'Beginner';
+  };
+
+  console.log(stats);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -20,30 +35,31 @@ export default function Profile() {
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex items-center space-x-4">
           <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-4 rounded-full">
-            <span className="text-2xl text-white">{user?.name?.charAt(0)}</span>
+            <span className="text-2xl text-white">{stats?.user?.name?.charAt(0)}</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
-            <p className="text-gray-600">{user?.email}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{stats?.user?.name}</h1>
+            <p className="text-gray-600">{stats?.user?.email}</p>
           </div>
-          <motion.div
-            className="ml-auto"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          {user?.role === 'admin' && (
+            <motion.div
+              className="ml-auto"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
           >
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-3 rounded-full">
               <div className="flex items-center space-x-2">
                 <Trophy className="h-5 w-5 text-indigo-600" />
                 <span className="text-lg font-semibold text-indigo-600">
-                  {user?.points || 0} Points
+                  {stats?.user?.points || 0} Points
                 </span>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <motion.div
@@ -52,9 +68,10 @@ export default function Profile() {
         >
           <div className="flex items-center space-x-2 text-indigo-600 mb-2">
             <BookOpen className="h-5 w-5" />
-            <h3 className="font-medium">Subjects</h3>
+            <h3 className="font-medium">Subjects Progress</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{subjectList?.length || 0}</p>
+          <p className="text-3xl font-bold text-gray-900">{stats?.subjectsInProgress || 0}</p>
+          <p className="text-sm text-gray-600 mt-1">In Progress</p>
         </motion.div>
 
         <motion.div
@@ -62,10 +79,11 @@ export default function Profile() {
           className="bg-white p-6 rounded-lg shadow-md"
         >
           <div className="flex items-center space-x-2 text-purple-600 mb-2">
-            <Star className="h-5 w-5" />
-            <h3 className="font-medium">Achievements</h3>
+            <Target className="h-5 w-5" />
+            <h3 className="font-medium">Exam Success</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">12</p>
+          <p className="text-3xl font-bold text-gray-900">{stats?.passedExams || 0}</p>
+          <p className="text-sm text-gray-600 mt-1">Exams Passed</p>
         </motion.div>
 
         <motion.div
@@ -76,7 +94,8 @@ export default function Profile() {
             <Award className="h-5 w-5" />
             <h3 className="font-medium">Rank</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">Advanced</p>
+          <p className="text-3xl font-bold text-gray-900">{calculateRank(user?.points || 0)}</p>
+          <p className="text-sm text-gray-600 mt-1">Level {stats?.highestLevel || 0}</p>
         </motion.div>
 
         <motion.div
@@ -85,10 +104,32 @@ export default function Profile() {
         >
           <div className="flex items-center space-x-2 text-rose-600 mb-2">
             <Clock className="h-5 w-5" />
-            <h3 className="font-medium">Study Hours</h3>
+            <h3 className="font-medium">Study Time</h3>
           </div>
-          <p className="text-3xl font-bold text-gray-900">24</p>
+          <p className="text-3xl font-bold text-gray-900">{stats?.studyHours || 0}h</p>
+          <p className="text-sm text-gray-600 mt-1">Total Hours</p>
         </motion.div>
+      </div>
+
+      {/* Performance Overview */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Overview</h2>
+        <div className="flex items-center space-x-4">
+          <div className="flex-1">
+            <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
+                style={{ width: `${(stats?.averageScore || 0) * 10}%` }}
+              />
+            </div>
+            <div className="mt-2 flex justify-between text-sm">
+              <span className="text-gray-600">Average Score</span>
+              <span className="font-medium text-indigo-600">
+                {((stats?.averageScore || 0) * 10).toFixed(1)}%
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Recent Activity */}

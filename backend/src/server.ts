@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
-
+import userRoutes from './routes/user.js';
 import authRoutes from './routes/auth.js';
 import examRoutes from './routes/exam.js';
 import subjectRoutes from './routes/subject.js';
@@ -42,7 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/exams', protect, examRoutes);
 app.use('/api/subjects', protect, subjectRoutes);
 app.use('/api/chatbot', protect, chatbotRoutes);
-
+app.use('/api/users', protect, userRoutes);
 // Error handling
 app.use(errorHandler);
 

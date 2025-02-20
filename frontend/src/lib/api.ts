@@ -49,6 +49,7 @@ export const subjects = {
   getById: async (id: string) => (await api.get(`/subjects/${id}`)).data,
   create: async (data: { name: string; description: string }) =>
     (await api.post('/subjects', data)).data,
+  delete: async (id: string) => (await api.delete(`/subjects/${id}`)).data,
 };
 
 export const exams = {
@@ -65,5 +66,10 @@ export const chatbot = {
 // export const examAttempts = {
 //   getById: async (id: string) => (await api.get(`/examAttempts/${id}`)).data,
 // };
+
+export const userStats = {
+  getStats: async () => (await api.get('/users/stats')).data,
+  getStatsById: async (id: string) => (await api.get(`/users/stats/${id}`)).data,
+};
 
 export default api;

@@ -44,7 +44,7 @@ function App() {
               <Route path="/subjects/:id" element={<PrivateRoute element={<SubjectDetail />} />} />
               <Route path="/exams/:id" element={<PrivateRoute element={<Exam />} />} />
               <Route path="/admin" element={<AdminRoute element={<AdminDashboard />} />} />
-              <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+              <Route path="/profile/:id?" element={<PrivateRoute element={<Profile />} />} />
               <Route path="/exam-results" element={<PrivateRoute element={<ExamResults />} />} />
             </Routes>
           </main>

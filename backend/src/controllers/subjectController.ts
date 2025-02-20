@@ -4,6 +4,7 @@ import { Subject } from '../models/Subject.js';
 import { UserSubjectLevel } from '../models/UserSubjectLevel.js';
 import { AIService } from '../services/gemini.js';
 import { Exam } from '../models/Exam.js';
+// import { ExamAttempt } from '../models/ExamAttempt.js';
 import mongoose from 'mongoose';
 
 // Types
@@ -103,11 +104,38 @@ export class SubjectController {
             return res.status(500).json({ message: 'Error fetching subject' });
         }
     }
+
+    static async deleteSubject(req: AuthRequest, res: Response) {
+        try {
+            const { id } = req.params;
+
+            // Delete associated exams
+            await Exam.deleteMany({ subject: id });
+            
+            // Delete associated user subject levels
+            await UserSubjectLevel.deleteMany({ subject: id });
+
+            // // Delete Attempts
+            // await ExamAttempt.deleteMany({ subject: id });
+
+            // Delete the subject
+            const subject = await Subject.findByIdAndDelete(id);
+            
+            if (!subject) {
+                return res.status(404).json({ message: 'Subject not found' });
+            }
+
+            return res.status(200).json({ message: 'Subject deleted successfully' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Error deleting subject' });
+        }
+    }
 }
 
 // Export routes with validation
 export const routes = {
     createSubject: [...subjectValidation, SubjectController.createSubject],
     getAllSubjects: SubjectController.getAllSubjects,
-    getSubjectById: SubjectController.getSubjectById
+    getSubjectById: SubjectController.getSubjectById,
+    deleteSubject: SubjectController.deleteSubject
 };

@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/auth';
-import { Menu, X, BookOpen, LogOut, User } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/auth";
+import { Menu, X, BookOpen, LogOut, User } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,7 +11,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -24,7 +24,11 @@ export default function Navbar() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-gray-600 hover:text-gray-900"
             >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {isMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
             </button>
           </div>
 
@@ -44,7 +48,7 @@ export default function Navbar() {
                 >
                   Subjects & Exams!
                 </Link>
-                {user?.role === 'admin' && (
+                {user?.role === "admin" && (
                   <Link
                     to="/admin"
                     className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
@@ -60,7 +64,9 @@ export default function Navbar() {
           <div className="flex-1 flex items-center justify-center">
             <Link to="/" className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-indigo-600" />
-              <span className="text-xl font-bold text-gray-900">Adaptive Learning</span>
+              <span className="text-xl font-bold text-gray-900">
+                Adaptive Learning
+              </span>
             </Link>
           </div>
 
@@ -82,11 +88,12 @@ export default function Navbar() {
                 </Link>
               </>
             ) : (
-
               <div className="relative group">
                 <button className="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
                   <User className="h-5 w-5" />
                   <span>{user?.name}</span>
+
+                  {user?.role === "student" && (
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={user?.points}
@@ -98,21 +105,28 @@ export default function Navbar() {
                       <motion.span
                         initial={{ scale: 0.5 }}
                         animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 15,
+                        }}
                       >
                         ✨ {user?.points || 0} pts
                       </motion.span>
                     </motion.div>
                   </AnimatePresence>
+                  )}
                 </button>
-                <div className="absolute right-0 w-48 mt-2 py-2 bg-white rounded-md shadow-xl hidden group-hover:block">
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
-                  >
-                    My Profile
-                  </Link>
-                  {user?.role === 'admin' && (
+                <div className="absolute right-0 w-48 mt-0 py-2 bg-white rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out">
+                  {user?.role != "admin" && (
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                    >
+                      My Profile
+                    </Link>
+                  )}
+                  {user?.role === "admin" && (
                     <Link
                       to="/admin"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
@@ -167,7 +181,7 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                {user?.role === 'admin' && (
+                {user?.role === "admin" && (
                   <Link
                     to="/admin"
                     className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
@@ -179,7 +193,7 @@ export default function Navbar() {
                   onClick={handleLogout}
                   className="flex items-center w-full px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
                 >
-                  <LogOut className="h-4 w-4 mr-2" /> 
+                  <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </button>
               </>
