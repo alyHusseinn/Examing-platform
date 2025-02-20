@@ -28,8 +28,7 @@ const createExamForDifficulty = async (subjectId: mongoose.Types.ObjectId, diffi
             correctAnswer: question.correctAnswer,
             difficulty
         })),
-        youtubeResources: questions.youtubeResources,
-        webResources: questions.webResources,
+        resources: questions.resources,
     });
 };
 
@@ -45,31 +44,34 @@ export class SubjectController {
     static async createSubject(req: AuthRequest, res: Response) {
         try {
             handleValidationErrors(req);
-
             const { name, description } = req.body;
-
-            // Generate questions for all difficulty levels
-            const [easyQuestions, mediumQuestions, hardQuestions] = await Promise.all([
+            // Generate questions for each difficulty level separately
+            const [easyExam, intermediateExam, hardExam] = await Promise.all([
                 AIService.generateQuestions(name, description, 'easy'),
                 AIService.generateQuestions(name, description, 'intermediate'),
                 AIService.generateQuestions(name, description, 'hard')
-            ]);
-
-            // Create subject
+            ]);            
+            
             const subject = await Subject.create({ name, description });
+
 
             // Create exams for all difficulty levels
             await Promise.all([
-                createExamForDifficulty(subject._id, 'easy', easyQuestions),
-                createExamForDifficulty(subject._id, 'intermediate', mediumQuestions),
-                createExamForDifficulty(subject._id, 'hard', hardQuestions)
+                createExamForDifficulty(subject._id, 'easy', easyExam),
+                createExamForDifficulty(subject._id, 'intermediate', intermediateExam),
+                createExamForDifficulty(subject._id, 'hard', hardExam)
             ]);
+
 
             return res.status(201).json({ message: 'Subject created successfully', id: subject._id });
         } catch (error: any) {
+            console.error('Error creating subject:', error);
             const status = error.status || 500;
             const message = error.status ? error.errors : 'Error creating subject';
-            return res.status(status).json({ message });
+            return res.status(status).json({ 
+                message,
+                error: error.message 
+            });
         }
     }
 
@@ -85,22 +87,30 @@ export class SubjectController {
     static async getSubjectById(req: AuthRequest, res: Response) {
         try {
             const { id } = req.params;
+            
+            // Validate MongoDB ObjectId
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).json({ message: 'Invalid subject ID format' });
+            }
 
-            const subject = await Subject.findById(id);
+            const [subject, userSubjectLevel] = await Promise.all([
+                Subject.findById(id),
+                UserSubjectLevel.findOne({
+                    subject: id,
+                    user: req?.user._id
+                })
+            ]);
+
             if (!subject) {
                 return res.status(404).json({ message: 'Subject not found' });
             }
-
-            const userSubjectLevel = await UserSubjectLevel.findOne({
-                subject: id,
-                user: req?.user._id
-            });
 
             return res.status(200).json({
                 ...subject.toObject(),
                 level: userSubjectLevel?.level || 0
             });
         } catch (error) {
+            console.error('Error fetching subject:', error);
             return res.status(500).json({ message: 'Error fetching subject' });
         }
     }

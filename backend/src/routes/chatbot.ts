@@ -13,8 +13,12 @@ router.post('/', [
     return res.status(400).json({ errors: errors.array() });
   }
   const { subject, question } = req.body;
-  const response = await AIService.askAiAboutSubject(subject, question);
-  res.json({ response });
+  try {
+    const response = await AIService.askAiAboutSubject(subject, question);
+    res.json({ response });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get response from AI' });
+  }
 });
 
 export default router;

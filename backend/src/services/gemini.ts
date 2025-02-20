@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
-
+import 'dotenv/config';
 // Types
 interface Question {
   text: string;
@@ -9,8 +9,7 @@ interface Question {
 
 interface QuestionResponse {
   questions: Question[];
-  youtubeResources: string[];
-  webResources: string[];
+  resources: string[];
 }
 
 interface RetryOptions {
@@ -21,19 +20,19 @@ interface RetryOptions {
 }
 
 // Configuration
-const API_KEY = "AIzaSyCXvzx8t_Q82yqI0BiMKgadzSF8uVKA1qg";
+const API_KEY = process.env.GEMINI_API_KEY;
 const MODEL_NAME = 'gemini-pro';
 
 // Default retry configuration
 const DEFAULT_RETRY_OPTIONS: RetryOptions = {
-  maxAttempts: 5,
-  initialDelay: 1000, // 1 second
-  maxDelay: 32000,    // 32 seconds
-  backoffFactor: 2
+  maxAttempts: 8,        // Increased from 5 to 8
+  initialDelay: 2000,    // Increased from 1000 to 2000
+  maxDelay: 60000,       // Increased from 32000 to 60000
+  backoffFactor: 1.5     // Decreased from 2 to 1.5 for more gradual backoff
 };
 
 // Initialize AI
-const genAI = new GoogleGenerativeAI(API_KEY);
+const genAI = new GoogleGenerativeAI(API_KEY as string);
 const model: GenerativeModel = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 class AIService {
@@ -43,7 +42,9 @@ class AIService {
 
   private static calculateBackoff(attempt: number, options: RetryOptions): number {
     const backoffDelay = options.initialDelay * Math.pow(options.backoffFactor, attempt - 1);
-    return Math.min(backoffDelay, options.maxDelay);
+    // Add jitter (randomization) to prevent thundering herd problem
+    const jitter = Math.random() * 1000; // Random delay between 0-1000ms
+    return Math.min(backoffDelay + jitter, options.maxDelay);
   }
 
   private static isRetryableError(error: any): boolean {
@@ -65,14 +66,8 @@ class AIService {
     1. Generate exactly 10 multiple-choice questions for ${subject} about ${topic} at ${difficulty} level.
     2. Each question must have exactly 4 unique answer choices.
     3. The "correctAnswer" must be an integer (0-3) representing the index of the correct answer.
-    4. Include exactly 2 YouTube video URLs that:
-       - Must be from reputable educational channels (e.g., Khan Academy, Crash Course, MIT OpenCourseWare)
-       - Must be directly related to ${topic}
-       - Must use the full video URL format: "https://www.youtube.com/watch?v=VIDEO_ID"
-       - Must be real, existing videos
-       - Must be available to watch on YouTube
-    5. Include exactly 2 reliable web resources from educational websites (.edu domains preferred).
-    6. Respond **ONLY** with valid JSON—no additional text, no Markdown, no explanations.
+    4. 5 resources must be included, courses, videos, articles, etc.
+    5. Respond **ONLY** with valid JSON—no additional text, no Markdown, no explanations.
 
     STRICT JSON STRUCTURE:
     {
@@ -88,22 +83,18 @@ class AIService {
           "correctAnswer": 0
         }
       ],
-      "youtubeResources": [
-        "https://www.youtube.com/watch?v=VIDEO_ID",
-        "https://www.youtube.com/watch?v=VIDEO_ID"
-      ],
-      "webResources": [
-        "https://valid-educational-site-1.edu",
-        "https://valid-educational-site-2.edu"
+      "resources": [
+        "resource 1 URL",
+        "resource 2 URL",
+        "resource 3 URL",
       ]
     }`;
   }
 
   private static validateQuestionResponse(data: any): boolean {
     if (!data || typeof data !== 'object') return false;
-    if (!Array.isArray(data.questions) || !Array.isArray(data.youtubeResources) || !Array.isArray(data.webResources)) return false;
+    if (!Array.isArray(data.questions) || !Array.isArray(data.resources)) return false;
     if (data.questions.length !== 10) return false;
-    if (data.youtubeResources.length !== 2 || data.webResources.length !== 2) return false;
 
     return data.questions.every((q: any) => {
       return (

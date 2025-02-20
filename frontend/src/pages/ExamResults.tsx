@@ -1,26 +1,22 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Trophy, BookOpen, Youtube, Link as LinkIcon } from 'lucide-react';
+import { Trophy, BookOpen } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
-
+import { useEffect } from 'react';
 interface LocationState {
   score: number;
-  youtubeResources?: string[];
-  webResources?: string[];
+  resources: string[];
 }
 
 export default function ExamResults() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { score, youtubeResources = [], webResources = [] } = location.state as LocationState;
+  // when the page loads, scroll to the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  const { score, resources = [] } = location.state as LocationState;
   const passed = score >= 7;
-
-  // Function to extract YouTube video ID from URL
-  const getYoutubeVideoId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-6">
@@ -60,7 +56,7 @@ export default function ExamResults() {
         </p>
 
         <Button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate(-2)}
           variant="primary"
           className="animate-bounce"
         >
@@ -69,43 +65,17 @@ export default function ExamResults() {
       </motion.div>
 
       {/* Resources Section - Show only if failed */}
-      {!passed && (youtubeResources.length > 0 || webResources.length > 0) && (
+      {!passed && resources.length > 0 && (
         <div className="space-y-6">
-          {/* YouTube Resources */}
-          {youtubeResources.length > 0 && (
+          {/* Courses */}
+          {resources.length > 0 && (
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center space-x-2 mb-6">
-                <Youtube className="h-6 w-6 text-red-600" />
-                <h2 className="text-xl font-bold">Video Resources</h2>
-              </div>
-              <div className="space-y-6">
-                {youtubeResources.map((url, index) => {
-                  const videoId = getYoutubeVideoId(url);
-                  return videoId ? (
-                    <div key={index} className="aspect-w-16 aspect-h-9">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${videoId}`}
-                        title={`YouTube video ${index + 1}`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="rounded-lg shadow-md w-full h-[315px]"
-                      />
-                    </div>
-                  ) : null;
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Web Resources */}
-          {webResources.length > 0 && (
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center space-x-2 mb-6">
-                <LinkIcon className="h-6 w-6 text-indigo-600" />
-                <h2 className="text-xl font-bold">Additional Resources</h2>
+                <BookOpen className="h-6 w-6 text-indigo-600" />
+                <h2 className="text-xl font-bold">Recommended Courses and Articles</h2>
               </div>
               <div className="space-y-3">
-                {webResources.map((url, index) => (
+                {resources.map((url, index) => (
                   <a
                     key={index}
                     href={url}
@@ -114,7 +84,7 @@ export default function ExamResults() {
                     className="block p-4 rounded-lg border border-gray-200 hover:border-indigo-200 hover:bg-indigo-50 transition-colors duration-200"
                   >
                     <div className="flex items-center space-x-2">
-                      <LinkIcon className="h-4 w-4 text-indigo-600" />
+                      <BookOpen className="h-4 w-4 text-indigo-600" />
                       <span className="text-indigo-600 hover:underline">{url}</span>
                     </div>
                   </a>

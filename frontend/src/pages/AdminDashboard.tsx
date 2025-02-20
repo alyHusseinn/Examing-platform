@@ -5,6 +5,7 @@ import { subjects } from '../lib/api';
 import type { Subject } from '../types';
 import { Button } from '../components/ui/button';
 import { LoadingSpinner } from '../components/ui/loading-spinner';
+import { useNavigate } from 'react-router-dom';
 
 const SubjectCard = ({ subject, onDelete }: { subject: Subject; onDelete: (id: string) => void }) => (
   <div className="p-6 flex items-start justify-between border border-gray-200">
@@ -32,10 +33,12 @@ const SubjectCard = ({ subject, onDelete }: { subject: Subject; onDelete: (id: s
 
 const CreateSubjectForm = ({ 
   onSubmit, 
-  isLoading
+  isLoading,
+  error
 }: { 
   onSubmit: (data: { name: string; description: string }) => void;
   isLoading: boolean;
+  error?: string;
 }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -48,6 +51,11 @@ const CreateSubjectForm = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
       <h2 className="text-xl font-semibold mb-4">Create New Subject</h2>
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -133,6 +141,7 @@ export default function AdminDashboard() {
   const [isCreating, setIsCreating] = useState(false);
   const [subjectToDelete, setSubjectToDelete] = useState<Subject | null>(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: subjectList, isLoading } = useQuery<Subject[]>({
     queryKey: ['subjects'],
@@ -141,9 +150,10 @@ export default function AdminDashboard() {
 
   const createMutation = useMutation({
     mutationFn: subjects.create,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['subjects'] });
       setIsCreating(false);
+      navigate(`/subjects/${data.id}`);
     },
   });
 
@@ -189,6 +199,7 @@ export default function AdminDashboard() {
         <CreateSubjectForm
           onSubmit={createMutation.mutate}
           isLoading={createMutation.isPending}
+          error={createMutation.error?.message}
         />
       )}
 
