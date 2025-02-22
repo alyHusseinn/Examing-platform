@@ -61,7 +61,7 @@ class AIService {
   private static createStructuredQuestionPrompt(subject: string, topic: string, difficulty: string): string {
     return `
     You are a JSON generator for an educational platform. Your task is to generate multiple-choice questions.
-
+    Respond **ONLY** with valid JSON. No extra text.
     REQUIREMENTS:
     1. Generate exactly 10 multiple-choice questions for ${subject} about ${topic} at ${difficulty} level.
     2. Each question must have exactly 4 unique answer choices.
@@ -115,49 +115,58 @@ class AIService {
     retryOptions: RetryOptions = DEFAULT_RETRY_OPTIONS
   ): Promise<QuestionResponse> {
     let lastError: Error | null = null;
-
+  
     for (let attempt = 1; attempt <= retryOptions.maxAttempts; attempt++) {
       try {
         const result = await model.generateContent(prompt);
         const response = result.response.text();
-
+  
+        // Clean response to remove unwanted Markdown syntax
+        const cleanedResponse = response
+          .replace(/```json/g, '')
+          .replace(/```/g, '')
+          .trim();
+  
+        // Attempt to parse JSON
         try {
-          const cleanedResponse = response
-            .replace(/```json/g, '')
-            .replace(/```/g, '')
-            .trim();
-
           const parsedResponse = JSON.parse(cleanedResponse);
-
+  
           if (!this.validateQuestionResponse(parsedResponse)) {
             throw new Error('Invalid response structure');
           }
-
-          return parsedResponse;
-
+  
+          return parsedResponse; // Successfully parsed and validated JSON
+  
         } catch (parseError: unknown) {
-          throw new Error(`JSON parse error: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+          lastError = new Error(`JSON parse error: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
+          
+          // Log parsing issue
+          console.warn(`Attempt ${attempt} failed due to JSON parsing error. Retrying...`);
+  
+          if (attempt === retryOptions.maxAttempts) {
+            throw lastError; // If max retries reached, throw error
+          }
         }
-
+  
       } catch (error: any) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+  
         if (attempt === retryOptions.maxAttempts || !this.isRetryableError(error)) {
           throw lastError;
         }
-
-        const backoffDelay = this.calculateBackoff(attempt, retryOptions);
-        console.warn(`Attempt ${attempt} failed: ${lastError.message}. Retrying in ${backoffDelay}ms...`);
-        
-        await this.delay(backoffDelay);
-        
-        // Modify prompt for next attempt
-        prompt += '\n\nPREVIOUS ATTEMPT FAILED. Remember: Respond with ONLY valid JSON, no additional text.';
       }
+  
+      const backoffDelay = this.calculateBackoff(attempt, retryOptions);
+      console.warn(`Retrying in ${backoffDelay}ms...`);
+      await this.delay(backoffDelay);
+  
+      // Modify prompt for next attempt to avoid repetition issues
+      prompt += '\n\nREMINDER: Respond with **valid JSON only**, without extra text or formatting.';
     }
-
+  
     throw lastError || new Error('Unknown error occurred during generation');
   }
+  
 
   static async generateQuestions(
     subject: string,
