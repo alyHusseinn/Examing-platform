@@ -46,3 +46,53 @@
     opacity: 1;
   }
 }
+
+/* RTL Support */
+.rtl {
+  direction: rtl;
+  text-align: right;
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+}
+
+.rtl .ltr {
+  direction: ltr;
+  text-align: left;
+}
+
+/* Flip icons in RTL mode */
+.rtl svg:not(.no-flip) {
+  transform: scaleX(-1);
+}
+
+/* Font smoothing for better rendering */
+.rtl {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0;
+}
+
+/* Adjust Arabic text line height */
+.rtl p, .rtl h1, .rtl h2, .rtl h3, .rtl h4, .rtl h5, .rtl h6 {
+  line-height: 1.8;
+}
+
+/* Adjust Arabic font weights */
+.rtl .font-bold {
+  font-weight: 700;
+}
+
+.rtl .font-semibold {
+  font-weight: 600;
+}
+
+.rtl .font-medium {
+  font-weight: 500;
+}
+
+.rtl .font-normal {
+  font-weight: 400;
+}
+
+.rtl .font-light {
+  font-weight: 300;
+}

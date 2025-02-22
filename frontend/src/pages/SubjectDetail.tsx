@@ -75,8 +75,8 @@ export default function SubjectDetail() {
   const difficulties = ['easy', 'intermediate', 'hard'] as const;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="bg-white rounded-lg shadow-md p-6 transform transition-all hover:scale-[1.01]">
+    <div className="max-w-4xl mx-auto space-y-8 p-8">
+      <div className="bg-white rounded-lg shadow-md p-6 transform transition-all hover:scale-[1.01] border-2 border-indigo-200">
         <div className="flex items-center space-x-4 mb-6">
           <div className="p-3 bg-indigo-50 rounded-lg animate-pulse">
             <BookOpen className="h-8 w-8 text-indigo-600" />
@@ -150,16 +150,16 @@ export default function SubjectDetail() {
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6 border-2 border-indigo-200">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Ask Questions About {subject.name}</h2>
         
         <div className="space-y-4 mb-4">
           {chatHistory.map((chat, index) => (
             <div key={index} className="space-y-2">
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div className="bg-gray-50 p-3 rounded-lg border border-indigo-200">
                 <p className="font-medium">You: {chat.question}</p>
               </div>
-              <div className="bg-indigo-50 p-3 rounded-lg">
+              <div className="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
                 <p className="text-indigo-900">AI: {chat.answer}</p>
               </div>
             </div>

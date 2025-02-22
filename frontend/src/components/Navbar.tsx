@@ -3,11 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import { Menu, X, BookOpen, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LanguageToggle } from './LanguageToggle';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isAuthenticated, user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -38,7 +41,7 @@ export default function Navbar() {
               to="/"
               className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
             >
-              Home
+              {t('common.home')}
             </Link>
             {isAuthenticated && (
               <>
@@ -46,14 +49,14 @@ export default function Navbar() {
                   to="/subjects"
                   className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Subjects & Exams!
+                  {t('common.subjects')}
                 </Link>
                 {user?.role === "admin" && (
                   <Link
                     to="/admin"
                     className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
                   >
-                    Admin Dashboard
+                    {t('common.adminDashboard')}
                   </Link>
                 )}
               </>
@@ -65,26 +68,27 @@ export default function Navbar() {
             <Link to="/" className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-indigo-600" />
               <span className="text-xl font-bold text-gray-900">
-                Adaptive Learning
+                {t('common.title')}
               </span>
             </Link>
           </div>
 
           {/* Right navigation */}
           <div className="hidden md:flex items-center space-x-4">
+            <LanguageToggle />
             {!isAuthenticated ? (
               <>
                 <Link
                   to="/login"
                   className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Login
+                  {t('common.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
                 >
-                  Sign Up
+                  {t('common.register')}
                 </Link>
               </>
             ) : (
@@ -111,7 +115,7 @@ export default function Navbar() {
                           damping: 15,
                         }}
                       >
-                        ✨ {user?.points || 0} pts
+                        ✨ {user?.points || 0} {t('common.points')}
                       </motion.span>
                     </motion.div>
                   </AnimatePresence>
@@ -123,7 +127,7 @@ export default function Navbar() {
                       to="/profile"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
                     >
-                      My Profile
+                      {t('common.profile')}
                     </Link>
                   )}
                   {user?.role === "admin" && (
@@ -131,7 +135,7 @@ export default function Navbar() {
                       to="/admin"
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
                     >
-                      Admin Dashboard
+                      {t('common.adminDashboard')}
                     </Link>
                   )}
                   <button
@@ -139,7 +143,7 @@ export default function Navbar() {
                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
-                    Logout
+                    {t('common.logout')}
                   </button>
                 </div>
               </div>
@@ -154,14 +158,14 @@ export default function Navbar() {
               to="/"
               className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
             >
-              Home
+              {t('common.home')}
             </Link>
             {isAuthenticated && (
               <Link
                 to="/subjects"
                 className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
               >
-                Dashboard
+                {t('common.subjects')}
               </Link>
             )}
             {!isAuthenticated ? (
@@ -170,13 +174,13 @@ export default function Navbar() {
                   to="/login"
                   className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
                 >
-                  Login
+                  {t('common.login')}
                 </Link>
                 <Link
                   to="/register"
                   className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
                 >
-                  Sign Up
+                  {t('common.register')}
                 </Link>
               </>
             ) : (
@@ -186,7 +190,7 @@ export default function Navbar() {
                     to="/admin"
                     className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
                   >
-                    Admin Dashboard
+                    {t('common.adminDashboard')}
                   </Link>
                 )}
                 <button
@@ -194,7 +198,7 @@ export default function Navbar() {
                   className="flex items-center w-full px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  {t('common.logout')}
                 </button>
               </>
             )}

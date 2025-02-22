@@ -5,8 +5,10 @@ import { useQuery } from '@tanstack/react-query';
 import { subjects, userStats } from '../lib/api';
 import { Link, useParams } from 'react-router-dom';
 import { Subject } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
   
 export default function Profile() {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const { id } = useParams<{ id: string }>();
   
@@ -47,13 +49,13 @@ export default function Profile() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          >
-            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-3 rounded-full">
-              <div className="flex items-center space-x-2">
-                <Trophy className="h-5 w-5 text-indigo-600" />
-                <span className="text-lg font-semibold text-indigo-600">
-                  {stats?.user?.points || 0} Points
-                </span>
+            >
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-3 rounded-full">
+                <div className="flex items-center space-x-2">
+                  <Trophy className="h-5 w-5 text-indigo-600" />
+                  <span className="text-lg font-semibold text-indigo-600">
+                    {stats?.user?.points || 0} {t('common.points')}
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -68,10 +70,10 @@ export default function Profile() {
         >
           <div className="flex items-center space-x-2 text-indigo-600 mb-2">
             <BookOpen className="h-5 w-5" />
-            <h3 className="font-medium">Subjects Progress</h3>
+            <h3 className="font-medium">{t('profile.stats.subjectsProgress')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">{stats?.subjectsInProgress || 0}</p>
-          <p className="text-sm text-gray-600 mt-1">In Progress</p>
+          <p className="text-sm text-gray-600 mt-1">{t('profile.stats.inProgress')}</p>
         </motion.div>
 
         <motion.div
@@ -80,10 +82,10 @@ export default function Profile() {
         >
           <div className="flex items-center space-x-2 text-purple-600 mb-2">
             <Target className="h-5 w-5" />
-            <h3 className="font-medium">Exam Success</h3>
+            <h3 className="font-medium">{t('profile.stats.examSuccess')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">{stats?.passedExams || 0}</p>
-          <p className="text-sm text-gray-600 mt-1">Exams Passed</p>
+          <p className="text-sm text-gray-600 mt-1">{t('profile.stats.examsPassed')}</p>
         </motion.div>
 
         <motion.div
@@ -92,10 +94,12 @@ export default function Profile() {
         >
           <div className="flex items-center space-x-2 text-emerald-600 mb-2">
             <Award className="h-5 w-5" />
-            <h3 className="font-medium">Rank</h3>
+            <h3 className="font-medium">{t('profile.stats.rank')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">{calculateRank(user?.points || 0)}</p>
-          <p className="text-sm text-gray-600 mt-1">Level {stats?.highestLevel || 0}</p>
+          <p className="text-sm text-gray-600 mt-1">
+            {t('profile.stats.level')} {stats?.highestLevel || 0}
+          </p>
         </motion.div>
 
         <motion.div
@@ -104,16 +108,18 @@ export default function Profile() {
         >
           <div className="flex items-center space-x-2 text-rose-600 mb-2">
             <Clock className="h-5 w-5" />
-            <h3 className="font-medium">Study Time</h3>
+            <h3 className="font-medium">{t('profile.stats.studyTime')}</h3>
           </div>
           <p className="text-3xl font-bold text-gray-900">{stats?.studyHours || 0}h</p>
-          <p className="text-sm text-gray-600 mt-1">Total Hours</p>
+          <p className="text-sm text-gray-600 mt-1">{t('profile.stats.totalHours')}</p>
         </motion.div>
       </div>
 
       {/* Performance Overview */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Overview</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          {t('profile.performance.overview')}
+        </h2>
         <div className="flex items-center space-x-4">
           <div className="flex-1">
             <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
@@ -123,7 +129,7 @@ export default function Profile() {
               />
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="text-gray-600">Average Score</span>
+              <span className="text-gray-600">{t('profile.performance.averageScore')}</span>
               <span className="font-medium text-indigo-600">
                 {((stats?.averageScore || 0) * 10).toFixed(1)}%
               </span>
@@ -134,7 +140,9 @@ export default function Profile() {
 
       {/* Recent Activity */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          {t('profile.recentActivity.title')}
+        </h2>
         <div className="space-y-4">
           {subjectList?.map((subject: Subject) => (
             <Link
@@ -152,7 +160,7 @@ export default function Profile() {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{subject.name}</h3>
-                    <p className="text-sm text-gray-600">Continue learning</p>
+                    <p className="text-sm text-gray-600">{t('profile.recentActivity.continueLeaning')}</p>
                   </div>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />

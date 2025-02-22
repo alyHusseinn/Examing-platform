@@ -27,8 +27,7 @@ export interface Exam {
   subject: string;
   difficulty: 'easy' | 'intermediate' | 'hard';
   questions: Question[];
-  courses: string[];
-  articles: string[];
+  resources: string[];
 }
 
 export interface ExamAttempt {

@@ -3,12 +3,15 @@ import { Trophy, BookOpen } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
+import { useTranslation } from '../hooks/useTranslation';
+
 interface LocationState {
   score: number;
   resources: string[];
 }
 
 export default function ExamResults() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   // when the page loads, scroll to the top
@@ -17,6 +20,8 @@ export default function ExamResults() {
   }, []);
   const { score, resources = [] } = location.state as LocationState;
   const passed = score >= 7;
+
+  console.log(resources);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 p-6">
@@ -42,7 +47,7 @@ export default function ExamResults() {
         </div>
 
         <h1 className="text-3xl font-bold mb-4">
-          {passed ? "Congratulations! 🎉" : "Keep Learning! 📚"}
+          {passed ? t('examResults.congratulations') : t('examResults.keepLearning')}
         </h1>
 
         <div className="text-6xl font-bold mb-4 text-indigo-600">
@@ -50,9 +55,7 @@ export default function ExamResults() {
         </div>
 
         <p className="text-gray-600 text-lg mb-6">
-          {passed
-            ? "Great job! You've mastered this level!"
-            : "Don't worry! Here are some resources to help you improve:"}
+          {passed ? t('examResults.greatJob') : t('examResults.dontWorry')}
         </p>
 
         <Button
@@ -60,7 +63,7 @@ export default function ExamResults() {
           variant="primary"
           className="animate-bounce"
         >
-          Continue Learning
+          {t('examResults.continueLearning')}
         </Button>
       </motion.div>
 
@@ -72,7 +75,7 @@ export default function ExamResults() {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center space-x-2 mb-6">
                 <BookOpen className="h-6 w-6 text-indigo-600" />
-                <h2 className="text-xl font-bold">Recommended Courses and Articles</h2>
+                <h2 className="text-xl font-bold">{t('examResults.recommendedResources')}</h2>
               </div>
               <div className="space-y-3">
                 {resources.map((url, index) => (

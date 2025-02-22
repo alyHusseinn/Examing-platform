@@ -5,8 +5,10 @@ import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { exams } from "../lib/api";
 import type { Exam as ExamType, Question, ExamAttempt } from "../types";
 import { useAuthStore } from "../store/auth";
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function Exam() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -34,8 +36,7 @@ export default function Exam() {
       navigate("/exam-results", {
         state: {
           score: data.score,
-          courses: exam?.courses,
-          articles: exam?.articles,
+          resources: exam?.resources,
         },
       });
     },
@@ -52,7 +53,7 @@ export default function Exam() {
   if (!exam) {
     return (
       <div className="bg-red-50 text-red-600 p-4 rounded-lg">
-        Failed to load exam. Please try again later.
+        {t('exam.error')}
       </div>
     );
   }
@@ -81,7 +82,7 @@ export default function Exam() {
               </div>
               <div className="animate-fade-in">
                 <h2 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
-                  Congratulations! 🎉
+                  {t('exam.congratulations')}
                 </h2>
               </div>
             </>
@@ -89,14 +90,14 @@ export default function Exam() {
             <>
               <XCircle className="h-16 w-16 text-red-600 mx-auto mb-4" />
               <h2 className="text-2xl font-bold mb-4 text-red-600">
-                Keep Practicing!
+                {t('exam.keepLearning')}
               </h2>
               <div className="mb-6 space-y-4">
                 <p className="text-lg">
-                  Here are some resources to help you improve:
+                  {t('exam.dontWorry')}
                 </p>
                 <div className="space-y-3">
-                  {exam.courses?.map((resource, index) => (
+                  {exam.resources?.map((resource: string, index: number) => (
                     <a
                       key={index}
                       href={resource}
@@ -125,17 +126,16 @@ export default function Exam() {
             </>
           )}
           <p className="text-lg mb-6">
-            You scored{" "}
+            {t('exam.score')}
             <span className="font-bold text-indigo-600 text-xl">
-              {score}/10
-            </span>{" "}
-            on this exam.
+              {score}/{exam.questions.length}
+            </span>
           </p>
           <button
             onClick={() => navigate(-1)}
             className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
           >
-            Return to Subject
+            {t('exam.returnToSubject')}
           </button>
         </div>
       </div>
@@ -146,10 +146,10 @@ export default function Exam() {
 
   if (isAdmin && exam) {
     return (
-      <div className="max-w-3xl mx-auto space-y-8">
+      <div className="max-w-3xl mx-auto space-y-8 py-8">
         <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6 border border-indigo-500">
           <h1 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-            Exam Administration View
+            {t('exam.adminView.title')}
           </h1>
 
           <div className="space-y-6">
@@ -158,7 +158,8 @@ export default function Exam() {
                 <div key={index} className="border rounded-lg p-4 bg-white">
                   <p className="text-lg font-medium mb-4">
                     <span className="text-indigo-600 font-bold mr-2">
-                      Q{index + 1}.
+                      {t('exam.question')}
+                      {index + 1}.
                     </span>
                     {question.text}
                   </p>
@@ -194,14 +195,14 @@ export default function Exam() {
           {adminData?.attempts && (
             <div className="mt-8">
               <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                Student Performance Overview
+                {t('exam.adminView.studentPerformance')}
               </h2>
               <div className="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div className="p-4 bg-indigo-50 border-b font-medium text-indigo-800 grid grid-cols-4 gap-4">
-                  <span>Student</span>
-                  <span>Email</span>
-                  <span>Score</span>
-                  <span>Status</span>
+                  <span>{t('exam.adminView.columns.student')}</span>
+                  <span>{t('exam.adminView.columns.email')}</span>
+                  <span>{t('exam.adminView.columns.score')}</span>
+                  <span>{t('exam.adminView.columns.status')}</span>
                 </div>
                 {adminData.attempts.map(
                   (attempt: ExamAttempt, index: number) => (
@@ -231,11 +232,11 @@ export default function Exam() {
                       <div className="self-center">
                         {attempt.score >= 7 ? (
                           <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
-                            Passed
+                            {t('exam.adminView.status.passed')}
                           </span>
                         ) : (
                           <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
-                            Failed
+                            {t('exam.adminView.status.failed')}
                           </span>
                         )}
                       </div>
@@ -249,7 +250,7 @@ export default function Exam() {
           {/**All the resourcesources */}
           <div className="mt-8">
             <h2 className="text-xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              Courses & Articles
+              {t('exam.adminView.resources')}
             </h2>
 
             <div className="space-y-4">
@@ -271,20 +272,19 @@ export default function Exam() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto space-y-8 py-8">
       <div className="bg-gradient-to-r from-white to-indigo-50 rounded-lg shadow-lg p-6 border border-indigo-500">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
             <span className={difficultyColor}>
-              {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-            </span>{" "}
-            Exam
+              {t(`exam.title.${difficulty}`)}
+            </span>
           </h1>
 
           <div className="flex items-center space-x-2 bg-indigo-50 rounded-full px-4 py-2">
             <AlertCircle className="h-5 w-5 text-indigo-500 animate-pulse" />
             <span className="text-sm text-indigo-600 font-medium">
-              Score 7/10 to advance!
+              {t('exam.scoreToAdvance')}
             </span>
           </div>
         </div>
@@ -298,7 +298,8 @@ export default function Exam() {
             >
               <p className="text-lg font-medium mb-4">
                 <span className="text-indigo-600 font-bold mr-2">
-                  Q{index + 1}.
+                  {t('exam.question')}
+                  {index + 1}.
                 </span>
                 {question.text}
               </p>
@@ -338,7 +339,7 @@ export default function Exam() {
             className="group px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-md hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed"
           >
             <span className="flex items-center space-x-2">
-              <span>Submit Exam</span>
+              <span>{t('exam.submit')}</span>
               {Object.keys(answers).length === exam.questions.length && (
                 <span className="group-hover:translate-x-1 transition-transform duration-300">
                   →

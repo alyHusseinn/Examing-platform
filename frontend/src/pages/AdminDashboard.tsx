@@ -183,7 +183,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-8">
       <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200">
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <Button 

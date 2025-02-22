@@ -13,6 +13,7 @@ import Home from './pages/Home';
 import Profile from './pages/Profile';
 import ExamResults from './pages/ExamResults';
 import { initializeAuth } from './lib/api';
+import { useLanguageStore } from './store/language';
 const queryClient = new QueryClient();
 
 const PrivateRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
@@ -26,6 +27,8 @@ const AdminRoute: React.FC<{ element: React.ReactElement }> = ({ element }) => {
 };
 
 function App() {
+  const { language } = useLanguageStore();
+
   useEffect(() => {
     initializeAuth();
   }, []);
@@ -33,9 +36,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className="min-h-screen bg-gray-50">
+        <div className={`min-h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
           <Navbar />
-          <main className="container mx-auto px-4 py-8">
+          <main className="">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/subjects" element={<PrivateRoute element={<SubjectList />} />} />
