@@ -4,7 +4,7 @@ import { Brain, Trophy, Users, ArrowRight, BookOpen } from 'lucide-react';
 import { useAuthStore } from '../store/auth';
 // import studentsImage1 from '../assets/images/students1.jpg';
 import studentsImage2 from '../assets/images/students2.jpg';
-import studentsImage3 from '../assets/images/students3.jpg';
+import studentsImage3 from '../assets/images/students1.jpg';
 import learningImage from '../assets/images/students3.jpg';
 import communityImage from '../assets/images/students4.jpg';
 import { motion } from 'framer-motion';
@@ -31,20 +31,20 @@ const HeroSection = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center min-h-[calc(100vh-8rem)]">
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-gray-600 uppercase tracking-wider text-sm">{t('home.adaptiveLearning')}</p>
+          <p className="text-gray-600 uppercase tracking-wider text-sm font-bold">{t('home.adaptiveLearning')}</p>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
             {t('home.learnAtYourPace')}
           </h1>
         </div>
         
-        <p className="text-gray-600 text-lg">
+        <p className="text-gray-600 text-lg italic">
           {t('home.experiencePersonalized')}
         </p>
 
         <div className="flex items-center space-x-4">
           <Link
             to={isAuthenticated ? "/subjects" : "/register"}
-            className="bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors"
+            className="bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors animate-bounce hover:animate-none duration-300 "
           >
             {t('home.startLearning')}
           </Link>
@@ -85,9 +85,9 @@ const HeroSection = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
       >
         {/* Main circular background with animated border */}
         <div className="relative w-[80%] aspect-square max-w-xl">
-          {/* Outer spinning container */}
-          <div className="absolute -inset-4 rounded-full border-2 border-indigo-500/30 animate-[spin_8s_linear_infinite]" />
-          <div className="absolute -inset-8 rounded-full border-2 border-dashed border-indigo-400/20 animate-[spin_12s_linear_infinite_reverse]" />
+          {/* Outer spinning container - updated colors and animation speeds */}
+          <div className="absolute -inset-4 rounded-full border-2 border-pink-500/30 animate-[spin_15s_linear_infinite]" />
+          <div className="absolute -inset-8 rounded-full border-2 border-dashed border-emerald-400/20 animate-[spin_20s_linear_infinite_reverse]" />
           
           {/* Background and image */}
           <div className="absolute inset-0 bg-indigo-100 rounded-full opacity-50" />
@@ -101,48 +101,72 @@ const HeroSection = ({ isAuthenticated }: { isAuthenticated: boolean }) => {
           />
         </div>
 
-        {/* Floating elements - added more items */}
+        {/* Floating elements - updated with gradient backgrounds and animations */}
         <motion.div
-          className="absolute top-10 right-10 bg-white p-4 rounded-lg shadow-lg z-20"
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute top-10 right-10 bg-gradient-to-r from-rose-500 to-pink-500 p-4 rounded-lg shadow-lg z-20"
+          animate={{ 
+            y: [0, -10, 0],
+            background: ['linear-gradient(to right, #f43f5e, #ec4899)', 'linear-gradient(to right, #ec4899, #f43f5e)']
+          }}
+          transition={{ 
+            y: { duration: 2, repeat: Infinity },
+            background: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+          }}
         >
           <div className="flex items-center space-x-2">
-            <Brain className="h-6 w-6 text-indigo-600" />
-            <span className="text-sm font-medium">{t('home.floatingElements.aiPowered')}</span>
+            <Brain className="h-6 w-6 text-white" />
+            <span className="text-sm font-medium text-white">{t('home.floatingElements.aiPowered')}</span>
           </div>
         </motion.div>
 
         <motion.div
-          className="absolute top-20 left-0 bg-white p-4 rounded-lg shadow-lg z-20"
-          animate={{ x: [0, 10, 0] }}
-          transition={{ duration: 2.5, repeat: Infinity, delay: 0.3 }}
+          className="absolute top-20 left-0 bg-gradient-to-r from-teal-500 to-emerald-500 p-4 rounded-lg shadow-lg z-20"
+          animate={{ 
+            x: [0, 10, 0],
+            background: ['linear-gradient(to right, #14b8a6, #10b981)', 'linear-gradient(to right, #10b981, #14b8a6)']
+          }}
+          transition={{ 
+            x: { duration: 2.5, repeat: Infinity },
+            background: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+          }}
         >
           <div className="flex items-center space-x-2">
-            <BookOpen className="h-6 w-6 text-emerald-500" />
-            <span className="text-sm font-medium">{t('home.floatingElements.smartCurriculum')}</span>
+            <BookOpen className="h-6 w-6 text-white" />
+            <span className="text-sm font-medium text-white">{t('home.floatingElements.smartCurriculum')}</span>
           </div>
         </motion.div>
 
         <motion.div
-          className="absolute bottom-20 left-10 bg-white p-4 rounded-lg shadow-lg z-20"
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          className="absolute bottom-20 left-10 bg-gradient-to-r from-amber-500 to-orange-500 p-4 rounded-lg shadow-lg z-20"
+          animate={{ 
+            y: [0, 10, 0],
+            background: ['linear-gradient(to right, #f59e0b, #f97316)', 'linear-gradient(to right, #f97316, #f59e0b)']
+          }}
+          transition={{ 
+            y: { duration: 2, repeat: Infinity },
+            background: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+          }}
         >
           <div className="flex items-center space-x-2">
-            <Trophy className="h-6 w-6 text-yellow-500" />
-            <span className="text-sm font-medium">{t('home.floatingElements.trackProgress')}</span>
+            <Trophy className="h-6 w-6 text-white" />
+            <span className="text-sm font-medium text-white">{t('home.floatingElements.trackProgress')}</span>
           </div>
         </motion.div>
 
         <motion.div
-          className="absolute bottom-40 right-0 bg-white p-4 rounded-lg shadow-lg z-20"
-          animate={{ x: [0, -10, 0] }}
-          transition={{ duration: 2.3, repeat: Infinity, delay: 0.7 }}
+          className="absolute bottom-40 right-0 bg-gradient-to-r from-violet-500 to-purple-500 p-4 rounded-lg shadow-lg z-20"
+          animate={{ 
+            x: [0, -10, 0],
+            background: ['linear-gradient(to right, #8b5cf6, #a855f7)', 'linear-gradient(to right, #a855f7, #8b5cf6)']
+          }}
+          transition={{ 
+            x: { duration: 2.3, repeat: Infinity },
+            background: { duration: 3, repeat: Infinity, repeatType: "reverse" }
+          }}
         >
           <div className="flex items-center space-x-2">
-            <Users className="h-6 w-6 text-purple-500" />
-            <span className="text-sm font-medium">{t('home.floatingElements.communitySupport')}</span>
+            <Users className="h-6 w-6 text-white" />
+            <span className="text-sm font-medium text-white">{t('home.floatingElements.communitySupport')}</span>
           </div>
         </motion.div>
       </motion.div>
@@ -260,7 +284,7 @@ const TestimonialsSection = () => {
   const { t } = useTranslation();
   
   return (
-    <div className="py-24 min-h-[calc(100vh-8rem)] flex items-center bg-gradient-to-b from-white to-indigo-50">
+    <div className="py-24 min-h-[calc(100vh-8rem)] flex items-center bg-gradient-to-b to-white from-indigo-200">
       <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -362,7 +386,7 @@ export default function Home() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-indigo-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-screen py-16">
         <HeroSection isAuthenticated={isAuthenticated} />
       </div>

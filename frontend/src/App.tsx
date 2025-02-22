@@ -36,7 +36,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
-        <div className={`min-h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'}`}>
+        <div className={`min-h-screen bg-gray-50 ${language === 'ar' ? 'rtl' : 'ltr'} from-white to-indigo-100 bg-gradient-to-br`}>
           <Navbar />
           <main className="">
             <Routes>

@@ -294,7 +294,7 @@ export default function Exam() {
           {exam.questions.map((question, index) => (
             <div
               key={index}
-              className="border rounded-lg p-4 transition-all duration-300 hover:shadow-md hover:border-indigo-200 bg-white"
+              className="border rounded-lg p-4 transition-all duration-300 hover:shadow-lg border-indigo-400 bg-gradient-to-br from-white to-indigo-100"
             >
               <p className="text-lg font-medium mb-4">
                 <span className="text-indigo-600 font-bold mr-2">
@@ -307,7 +307,7 @@ export default function Exam() {
                 {question.options.map((option, optionIndex) => (
                   <label
                     key={optionIndex}
-                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-50 cursor-pointer transition-colors duration-200"
+                    className="flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-200 cursor-pointer transition-colors duration-200"
                   >
                     <input
                       type="radio"

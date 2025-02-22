@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     common: {
-      title: 'Adaptive Learning',
+      title: 'CMS',
       home: 'Home',
       login: 'Login',
       register: 'Sign Up',
@@ -84,8 +84,8 @@ export const translations = {
       }
     },
     home: {
-      adaptiveLearning: 'ADAPTIVE LEARNING PLATFORM',
-      learnAtYourPace: 'Learn at Your Own Pace with AI',
+      adaptiveLearning: 'CMS',
+      learnAtYourPace: 'Your modern online courses (CMS)',
       experiencePersonalized: 'Experience personalized learning that adapts to your knowledge level. Our AI-powered platform creates custom learning paths and provides instant feedback to help you master any subject.',
       startLearning: 'Start Learning',
       browseSubjects: 'Browse Subjects',
@@ -119,17 +119,17 @@ export const translations = {
         subtitle: 'Join thousands of satisfied learners on their journey to success',
         students: {
           student1: {
-            name: 'Sarah Johnson',
+            name: 'Mohamed Salah',
             role: 'Computer Science Student',
             content: 'The adaptive learning system helped me master complex programming concepts at my own pace.'
           },
           student2: {
-            name: 'Michael Chen',
+            name: 'Aly Hussein',
             role: 'Data Science Enthusiast',
             content: 'The interactive exercises and immediate feedback made learning statistics much more engaging.'
           },
           student3: {
-            name: 'Emily Williams',
+            name: 'Omer Marmoush',
             role: 'Mathematics Major',
             content: 'I love how the platform adjusts to my learning style and helps me focus on areas where I need improvement.'
           }
@@ -200,7 +200,7 @@ export const translations = {
   },
   ar: {
     common: {
-      title: 'تعلم معاير',
+      title: 'CMS',
       home: 'الرئيسية',
       login: 'تسجيل الدخول',
       register: 'إنشاء حساب',

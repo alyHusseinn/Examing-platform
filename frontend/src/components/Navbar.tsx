@@ -39,7 +39,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             <Link
               to="/"
-              className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-lg font-medium"
             >
               {t('common.home')}
             </Link>
@@ -47,14 +47,14 @@ export default function Navbar() {
               <>
                 <Link
                   to="/subjects"
-                  className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-lg font-medium"
                 >
                   {t('common.subjects')}
                 </Link>
                 {user?.role === "admin" && (
                   <Link
                     to="/admin"
-                    className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-lg font-medium"
                   >
                     {t('common.adminDashboard')}
                   </Link>
@@ -67,7 +67,7 @@ export default function Navbar() {
           <div className="flex-1 flex items-center justify-center">
             <Link to="/" className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-indigo-600" />
-              <span className="text-xl font-bold text-gray-900">
+              <span className="text-3xl font-bold text-gray-900">
                 {t('common.title')}
               </span>
             </Link>
@@ -80,20 +80,20 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md font-medium"
                 >
                   {t('common.login')}
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700"
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-700 "
                 >
                   {t('common.register')}
                 </Link>
               </>
             ) : (
               <div className="relative group">
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+                <button className="flex items-center space-x-2 text-gray-600 hover:text-indigo-600 ">
                   <User className="h-5 w-5" />
                   <span>{user?.name}</span>
 
@@ -125,7 +125,7 @@ export default function Navbar() {
                   {user?.role != "admin" && (
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                      className="block px-4 py-2 text-lg text-gray-700 hover:bg-indigo-50"
                     >
                       {t('common.profile')}
                     </Link>
@@ -133,14 +133,14 @@ export default function Navbar() {
                   {user?.role === "admin" && (
                     <Link
                       to="/admin"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                      className="block px-4 py-2 text-lg text-gray-700 hover:bg-indigo-50"
                     >
                       {t('common.adminDashboard')}
                     </Link>
                   )}
                   <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50"
+                    className="flex items-center w-full px-4 py-2 text-lg text-gray-700 hover:bg-indigo-50"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     {t('common.logout')}
@@ -156,14 +156,14 @@ export default function Navbar() {
           <div className="md:hidden py-2">
             <Link
               to="/"
-              className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+              className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md text-lg"
             >
               {t('common.home')}
             </Link>
             {isAuthenticated && (
               <Link
                 to="/subjects"
-                className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md text-lg"
               >
                 {t('common.subjects')}
               </Link>
@@ -172,13 +172,13 @@ export default function Navbar() {
               <>
                 <Link
                   to="/login"
-                  className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                  className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md text-lg"
                 >
                   {t('common.login')}
                 </Link>
                 <Link
                   to="/register"
-                  className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                  className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md text-lg"
                 >
                   {t('common.register')}
                 </Link>
@@ -188,14 +188,14 @@ export default function Navbar() {
                 {user?.role === "admin" && (
                   <Link
                     to="/admin"
-                    className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                    className="block px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md text-lg"
                   >
                     {t('common.adminDashboard')}
                   </Link>
                 )}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center w-full px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md"
+                  className="flex items-center w-full px-3 py-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-50 rounded-md text-lg"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   {t('common.logout')}
