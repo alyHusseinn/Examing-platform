@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Types
 interface Question {
@@ -195,25 +196,19 @@ class AIService {
     }];
 
     try {
-      const response = await this.makeOpenRouterRequest(messages);
-      return response.slice(0, 1000);
+      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text();
+      return text;
     } catch (error: any) {
       console.error('AI response generation error:', error);
       throw new Error(`Failed to answer question: ${error.message}`);
     }
   }
 }
-
-// try the api
-// const subject = 'Math';
-// const topic = 'Algebra';
-// const difficulty = 'easy';
-// const data = AIService.generateQuestions(subject, topic, difficulty)
-//   .then(response => {
-//     console.log(response);
-//   })
-//   .catch(error => {
-//     console.error('Error:', error);
-//   });
 
 export { AIService, type RetryOptions };
