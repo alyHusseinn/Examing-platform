@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import 'dotenv/config';
+
 // Types
 interface Question {
   text: string;
@@ -19,21 +19,16 @@ interface RetryOptions {
   backoffFactor: number;
 }
 
-// Configuration
-const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL_NAME = 'gemini-pro';
+// Updated configuration
+const API_KEY = process.env.OPENAPI_ROUTER_API_KEY;
+const MODEL_NAME = 'qwen/qwen2.5-vl-72b-instruct:free';
 
-// Default retry configuration
 const DEFAULT_RETRY_OPTIONS: RetryOptions = {
-  maxAttempts: 8,        // Increased from 5 to 8
-  initialDelay: 2000,    // Increased from 1000 to 2000
-  maxDelay: 60000,       // Increased from 32000 to 60000
-  backoffFactor: 1.5     // Decreased from 2 to 1.5 for more gradual backoff
+  maxAttempts: 8,
+  initialDelay: 2000,
+  maxDelay: 60000,
+  backoffFactor: 1.5
 };
-
-// Initialize AI
-const genAI = new GoogleGenerativeAI(API_KEY as string);
-const model: GenerativeModel = genAI.getGenerativeModel({ model: MODEL_NAME });
 
 class AIService {
   private static async delay(ms: number): Promise<void> {
@@ -42,8 +37,7 @@ class AIService {
 
   private static calculateBackoff(attempt: number, options: RetryOptions): number {
     const backoffDelay = options.initialDelay * Math.pow(options.backoffFactor, attempt - 1);
-    // Add jitter (randomization) to prevent thundering herd problem
-    const jitter = Math.random() * 1000; // Random delay between 0-1000ms
+    const jitter = Math.random() * 1000;
     return Math.min(backoffDelay + jitter, options.maxDelay);
   }
 
@@ -110,63 +104,65 @@ class AIService {
     });
   }
 
+  private static async makeOpenRouterRequest(messages: any[]): Promise<string> {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: MODEL_NAME,
+        messages: messages 
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  }
+
   private static async retryGeneration(
-    prompt: string,
+    messages: any[],
     retryOptions: RetryOptions = DEFAULT_RETRY_OPTIONS
   ): Promise<QuestionResponse> {
     let lastError: Error | null = null;
-  
+
     for (let attempt = 1; attempt <= retryOptions.maxAttempts; attempt++) {
       try {
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
-  
-        // Clean response to remove unwanted Markdown syntax
+        const response = await this.makeOpenRouterRequest(messages);
         const cleanedResponse = response
-          .replace(/```json/g, '')
-          .replace(/```/g, '')
-          .trim();
-  
-        // Attempt to parse JSON
+        .replace(/```json/g, '')
+        .replace(/```/g, '')
+        .trim();
+        console.log(cleanedResponse)
+
         try {
           const parsedResponse = JSON.parse(cleanedResponse);
-  
           if (!this.validateQuestionResponse(parsedResponse)) {
             throw new Error('Invalid response structure');
           }
-  
-          return parsedResponse; // Successfully parsed and validated JSON
-  
+          return parsedResponse;
         } catch (parseError: unknown) {
           lastError = new Error(`JSON parse error: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`);
-          
-          // Log parsing issue
           console.warn(`Attempt ${attempt} failed due to JSON parsing error. Retrying...`);
-  
-          if (attempt === retryOptions.maxAttempts) {
-            throw lastError; // If max retries reached, throw error
-          }
         }
-  
       } catch (error: any) {
         lastError = error instanceof Error ? error : new Error(String(error));
-  
         if (attempt === retryOptions.maxAttempts || !this.isRetryableError(error)) {
           throw lastError;
         }
       }
-  
+
       const backoffDelay = this.calculateBackoff(attempt, retryOptions);
-      console.warn(`Retrying in ${backoffDelay}ms...`);
       await this.delay(backoffDelay);
-  
-      // Modify prompt for next attempt to avoid repetition issues
-      prompt += '\n\nREMINDER: Respond with **valid JSON only**, without extra text or formatting.';
     }
-  
+
     throw lastError || new Error('Unknown error occurred during generation');
   }
-  
 
   static async generateQuestions(
     subject: string,
@@ -178,13 +174,13 @@ class AIService {
       throw new Error('Missing required parameters');
     }
 
-    try {
-      const prompt = this.createStructuredQuestionPrompt(subject, topic, difficulty);
-      return await this.retryGeneration(prompt, retryOptions);
-    } catch (error: any) {
-      console.error('Question generation error:', error);
-      throw new Error(`Failed to generate questions: ${error.message}`);
-    }
+    const prompt = this.createStructuredQuestionPrompt(subject, topic, difficulty);
+    const messages = [{
+      role: "user",
+      content: prompt
+    }];
+
+    return await this.retryGeneration(messages, retryOptions);
   }
 
   static async askAiAboutSubject(
@@ -192,41 +188,32 @@ class AIService {
     question: string,
     retryOptions?: RetryOptions
   ): Promise<string> {
-    const prompt = `As an educational assistant, provide a concise explanation about ${subject}.
-    
-    REQUIREMENTS:
-    - Answer the following question: ${question}
-    - Keep the response under 250 words
-    - Focus on key points only
-    - Use simple, clear language
-    - Do not include any introductory phrases or conclusions`;
+    const prompt = `As an educational assistant, provide a concise explanation about ${subject}.\n\nQuestion: ${question}`;
+    const messages = [{
+      role: "user",
+      content: prompt
+    }];
 
     try {
-      let result;
-      for (let attempt = 1; attempt <= (retryOptions?.maxAttempts || DEFAULT_RETRY_OPTIONS.maxAttempts); attempt++) {
-        try {
-          result = await model.generateContent(prompt);
-          break;
-        } catch (error: any) {
-          if (attempt === (retryOptions?.maxAttempts || DEFAULT_RETRY_OPTIONS.maxAttempts) || !this.isRetryableError(error)) {
-            throw error;
-          }
-          const backoffDelay = this.calculateBackoff(attempt, retryOptions || DEFAULT_RETRY_OPTIONS);
-          console.warn(`Attempt ${attempt} failed: ${error.message}. Retrying in ${backoffDelay}ms...`);
-          await this.delay(backoffDelay);
-        }
-      }
-
-      if (!result) {
-        throw new Error('Failed to generate content after all retry attempts');
-      }
-
-      return result.response.text().slice(0, 1000);
+      const response = await this.makeOpenRouterRequest(messages);
+      return response.slice(0, 1000);
     } catch (error: any) {
       console.error('AI response generation error:', error);
       throw new Error(`Failed to answer question: ${error.message}`);
     }
   }
 }
+
+// try the api
+// const subject = 'Math';
+// const topic = 'Algebra';
+// const difficulty = 'easy';
+// const data = AIService.generateQuestions(subject, topic, difficulty)
+//   .then(response => {
+//     console.log(response);
+//   })
+//   .catch(error => {
+//     console.error('Error:', error);
+//   });
 
 export { AIService, type RetryOptions };
