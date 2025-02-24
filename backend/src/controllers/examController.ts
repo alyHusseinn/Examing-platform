@@ -16,6 +16,13 @@ enum DifficultyLevel {
     HARD = 'hard'
 }
 
+interface ExamQuestion {
+    question: string;
+    options: string[];
+    correctAnswer?: string;
+    [key: string]: any;
+}
+
 interface ExamAccess {
     level: number;
     difficulty: DifficultyLevel;
@@ -31,7 +38,7 @@ const examAccessRules: ExamAccess[] = [
 ];
 
 const hasAccessToExam = (userLevel: number | null, examDifficulty: string): boolean => {
-    if (!userLevel && examDifficulty !== DifficultyLevel.EASY) return false;
+    if (!userLevel && examDifficulty == DifficultyLevel.EASY) return true;
     const rule = examAccessRules.find(rule => rule.level === userLevel);
     return rule?.difficulty === examDifficulty;
 };
@@ -101,15 +108,23 @@ const getExamById = async (req: AuthRequest, res: Response) => {
             subject: exam.subject
         });
 
-        // if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
-        //     return res.status(403).json({ message: 'You do not have access to this exam' });
-        // }
-        // delete the exam.questions.correctAnswer
-        exam.questions.forEach((question: any) => {
-            delete question.correctAnswer;
-        });
-
-        res.json(exam);
+        if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
+            return res.status(403).json({ message: 'You do not have access to this exam' });
+        }
+        const sanitizedExam = {
+            _id: exam._id,
+            subject: exam.subject,
+            difficulty: exam.difficulty,
+            questions: exam.questions.map(q => ({
+                text: q.text,
+                options: q.options,
+                // Explicitly exclude correctAnswer
+            })),
+            resources: exam.resources,
+            createdAt: exam.createdAt,
+            updatedAt: exam.updatedAt
+        };
+        res.json(sanitizedExam);
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error fetching exam' });
@@ -139,9 +154,9 @@ const submitExam = [
                 subject: exam.subject
             });
 
-            // if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
-            //     return res.status(403).json({ message: 'You do not have access to this exam' });
-            // }
+            if (!hasAccessToExam(userSubjectLevel?.level || null, exam.difficulty)) {
+                return res.status(403).json({ message: 'You do not have access to this exam' });
+            }
 
             const score = calculateScore(answers, exam.questions);
             await updateExamAttempt(req.user.id, exam._id, score, answers);
