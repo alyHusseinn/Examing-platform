@@ -36,6 +36,10 @@ app.use('/api/exams', protect, examRoutes);
 app.use('/api/subjects', protect, subjectRoutes);
 app.use('/api/chatbot', protect, chatbotRoutes);
 app.use('/api/users', protect, userRoutes);
+
+app.get('/hello', (req, res) => {
+  res.send('Welcome to the API');
+})
 // Error handling
 app.use(errorHandler);
 
