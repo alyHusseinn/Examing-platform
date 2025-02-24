@@ -40,7 +40,7 @@ const examAccessRules: ExamAccess[] = [
 const hasAccessToExam = (userLevel: number | null, examDifficulty: string): boolean => {
     if (!userLevel && examDifficulty == DifficultyLevel.EASY) return true;
     const rule = examAccessRules.find(rule => rule.level === userLevel);
-    return rule?.difficulty === examDifficulty;
+    return rule?.difficulty === examDifficulty
 };
 
 const calculateScore = (userAnswers: Record<string, string>, correctAnswers: any[]): number => {
@@ -166,7 +166,7 @@ const submitExam = [
                 await User.findByIdAndUpdate(req.user.id, { $inc: { points: score * 10 } });
             }
 
-            res.json({ score });
+            res.json({ score, passed: score >= PASSING_SCORE });
         } catch (error) {
             console.log(error);
             res.status(500).json({ message: 'Error submitting exam' });
