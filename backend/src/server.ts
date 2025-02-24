@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
@@ -18,12 +17,6 @@ dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    methods: ['GET', 'POST']
-  }
-});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -51,20 +44,23 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI as string);       
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+    return conn;
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+    throw error;
   }
 };
 
-const PORT = process.env.PORT || 3000;
+// Ensure DB connection for all environments
+connectDB();
 
-// Start server only if MongoDB connects successfully
-connectDB().then(() => {
+// Start the server
+if(process.env.NODE_ENV === 'development') {
+  const PORT = process.env.PORT || 5000;
   httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
   });
+}
 
-});
-
-module.exports = app;
+// Export the app for Vercel
+export default app;
