@@ -104,3 +104,30 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+/**
+ * Forgot password
+ * POST /api/auth/forgot-password
+ * @body {string} email - User email
+ * 1. Find user by email
+ * 2. Generate reset token using JWT to sign it with user id
+ * 3. Save the reset token and expiry date to the user
+ * 4. Send email to the user with the reset token
+ */
+// export const forgotPassword = async (req: Request, res: Response) => {
+//   try {
+//     const { email } = req.body;
+
+//     const user = await User.findOne({ email })
+//     if (!user) {
+//       return res.status(404).json({ message: 'User not found' });
+//     }
+//     const resetToken = generateToken(user._id);
+//     user.resetPasswordToken = resetToken;
+//     user.resetPasswordExpires = new Date(Date.now() + 3600000); // 1 hour
+//     await user.save();
+//   }
+//   catch (error) {
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// };
