@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/auth';
 
+// https://examing-platform.vercel.app/api
+
 const api = axios.create({
-  baseURL: 'https://examing-platform.vercel.app/api',
+  baseURL: 'http://localhost:5000/api',
 });
 
 api.interceptors.request.use((config) => {

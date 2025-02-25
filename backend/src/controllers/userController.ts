@@ -13,7 +13,7 @@ export const getUserStats = async (req: AuthRequest, res: Response) => {
 
     const examAttempts = await ExamAttempt.find({ user: id });
     const userSubjectLevels = await UserSubjectLevel.find({ user: id });
-    const user = await User.findById(id);
+    const user = await User.findById(id).select("-password");
     
     const stats = {
       user,
