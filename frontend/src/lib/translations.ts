@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     common: {
-      title: 'CMS',
+      title: 'Adaptive Learning',
       home: 'Home',
       login: 'Login',
       register: 'Sign Up',
@@ -84,8 +84,8 @@ export const translations = {
       }
     },
     home: {
-      adaptiveLearning: 'CMS',
-      learnAtYourPace: 'Your modern online courses (CMS)',
+      adaptiveLearning: 'Adaptive Learning',
+      learnAtYourPace: 'Your modern online courses (Adaptive Learning)',
       experiencePersonalized: 'Experience personalized learning that adapts to your knowledge level. Our AI-powered platform creates custom learning paths and provides instant feedback to help you master any subject.',
       startLearning: 'Start Learning',
       browseSubjects: 'Browse Subjects',
@@ -200,7 +200,7 @@ export const translations = {
   },
   ar: {
     common: {
-      title: 'CMS',
+      title: 'Adaptive Learning',
       home: 'الرئيسية',
       login: 'تسجيل الدخول',
       register: 'إنشاء حساب',
