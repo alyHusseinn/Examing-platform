@@ -75,10 +75,28 @@ export class SubjectController {
         }
     }
 
-    static async getAllSubjects(req: Request, res: Response) {
+    static async getAllSubjects(req: AuthRequest, res: Response) {
         try {
             const subjects = await Subject.find();
-            return res.status(200).json(subjects);
+            
+            // Get user levels for all subjects
+            const userLevels = await UserSubjectLevel.find({
+                user: req?.user?._id,
+                subject: { $in: subjects.map(s => s._id) }
+            });
+
+            // Create a map using subject IDs as strings for direct lookup
+            const levelMap = new Map(
+                userLevels.map(ul => [ul?.subject?.toString(), ul.level])
+            );
+
+            // Merge subjects with their levels
+            const subjectsWithLevel = subjects.map(subject => ({
+                ...subject.toObject(),
+                level: levelMap.get(subject._id.toString()) || 0
+            }));
+
+            return res.status(200).json(subjectsWithLevel);
         } catch (error) {
             return res.status(500).json({ message: 'Error fetching subjects' });
         }
